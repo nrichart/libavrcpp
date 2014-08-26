@@ -162,15 +162,15 @@ typedef ADCPort<0x0F> adcgnd;
 /* -------------------------------------------------------------------------- */
 #include "pins/timer.hh"
 
-typedef timer_prescaler_type_1_t timer0_prescaler_t;
-typedef timer_prescaler_type_1_t timer1_prescaler_t;
-typedef timer_prescaler_type_2_t timer2_prescaler_t;
+typedef timer_prescaler_t0_t timer0_prescaler_t;
+typedef timer_prescaler_t0_t timer1_prescaler_t;
+typedef timer_prescaler_t2_t timer2_prescaler_t;
 
-typedef TimerCounterControl<timer0_prescaler_t, timer_8bit_waveform_t,
+typedef TimerCounterControl<timer0_prescaler_t, timer_waveform_t0_t,
                             tccr0a, tccr0b>         TCC0;
-typedef TimerCounterControl<timer1_prescaler_t, timer_10bit_waveform_t,
+typedef TimerCounterControl<timer1_prescaler_t, timer_waveform_t1_t,
                             tccr1a, tccr1b, tccr1c> TCC1;
-typedef TimerCounterControl<timer2_prescaler_t, timer_8bit_waveform_t,
+typedef TimerCounterControl<timer2_prescaler_t, timer_waveform_t0_t,
                             tccr2a, tccr2b>         TCC2;
 
 typedef OutputCompare<TCC0, ocr0a, ocr0b> OC0;

@@ -47,6 +47,8 @@ struct WS281xDisplayHelper<pin, _ws281x_800_khz> {
 
     volatile uint8_t byte = *leds++;
 
+    cli();
+
 #if (F_CPU >= 7400000UL) && (F_CPU <= 9500000UL)
     volatile uint8_t n1 = 0, n2 = 0;
     n1 = lo;
@@ -176,6 +178,8 @@ struct WS281xDisplayHelper<pin, _ws281x_800_khz> {
 #else
 #error "Not implemented"
 #endif
+
+    sei();
   }
 };
 

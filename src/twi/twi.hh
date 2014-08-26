@@ -340,7 +340,7 @@ public:
   template<typename T>
   static inline void receive(T data[], uint8_t size, twi_stop_t s = twi_stop) {
     // get the data
-    receiveFrom(size, s);
+    receiveFrom(size*sizeof(T), s);
     // unpack them
     interface::receive(data, size);
   }

@@ -43,9 +43,9 @@ enum timer_channel_t {
 /* -------------------------------------------------------------------------- */
 /* Timer mode                                                                 */
 /* -------------------------------------------------------------------------- */
-enum timer_mode_t { // non-PWM
+enum timer_mode_t {   // non-PWM
   _timer_normal = 0,  /* normal port operation */
-  _timer_toggle = 1,  /* toggle OCXX on mastch compare */
+  _timer_toggle = 1,  /* toggle OCXX on match compare */
   _timer_clear  = 2,  /* clear OCXX on match compare
                             fast PWM: set at BOTTOM
                             phase correct PWM: at up counting, set at down counting
@@ -74,7 +74,7 @@ public:
   typedef tccrc reg_c;
 
   static inline void setWaveform(waveform_t waveform) {
-    tccra::template sbits<WGMn0, 0x3>(waveform);
+    tccra::template sbits<WGMn0, 0x3>(waveform     );
     tccrb::template sbits<WGMn2, 0x3>(waveform >> 2);
   }
 
@@ -150,6 +150,9 @@ struct TimerSetOCHelper<oc, unused_type> {
   static inline void setOC(typename oc::type val) {  }
 };
 
+
+typedef void (*user_ovf_t)(void);
+
 /* -------------------------------------------------------------------------- */
 template<typename oc_regs,
          typename tcnt,
@@ -182,6 +185,19 @@ public:
     case _timer_channel_d: TimerSetOCHelper<oc_regs, typename oc_regs::d>::setOC(val); break;
     }
   }
+
+  static void enableOverflowInterrupt(user_ovf_t ovf) {
+    timsk::sbit(0);
+    user_ovf = ovf;
+
+  }
+
+  static void onOVF() {
+    if(user_ovf) (*user_ovf)();
+  }
+
+private:
+  static user_ovf_t user_ovf;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -202,9 +218,17 @@ public:
   static inline void setOC(typename timer::oc_type val)
   { timer::template setOC<channel>(val); }
 
+  static inline void enableOverflowInterrupt(user_ovf_t  ovf)
+  { timer::enableOverflowInterupt(ovf); }
+
   enum { type_id = _type_timer_channel };
 };
 
 
+
+template<typename oc_regs, typename tcnt,
+         typename timsk, typename tifr, uint8_t id,
+         bool as_pwm, bool as_async>
+user_ovf_t Timer<oc_regs, tcnt, timsk, tifr, id, as_pwm, as_async>::user_ovf = NULL;
 
 #endif /* __TIMER_HH__ */

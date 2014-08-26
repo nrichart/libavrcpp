@@ -41,6 +41,7 @@ function(add_avr_firmware target)
     ${LIBAVRC++_DIR}/src/serial/hw_serial.cc
     ${LIBAVRC++_DIR}/src/main.cc
     ${LIBAVRC++_DIR}/src/components/rtc/rtc.cc
+    ${LIBAVRC++_DIR}/src/pins/timer_interrupt.cc
     )
 
   if(_libavrc++_PORT)

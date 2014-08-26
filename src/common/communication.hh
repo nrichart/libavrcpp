@@ -31,7 +31,7 @@ public:
   template<typename T>
   static inline void send(const T & data) {
     for(uint8_t i = 0; i < sizeof(T); ++i) {
-      uint8_t byte = (data >> i) & 0xFF;
+      uint8_t byte = (data >> (sizeof(T) - i - 1)*8) & 0xFF;
       HWLayer::sendByte(byte);
     }
   }
@@ -39,7 +39,7 @@ public:
   template<typename T>
   static inline void send(const T data[], uint8_t size) {
     for(uint8_t i = 0; i < size; ++i) {
-      HWLayer::sendByte(data[i]);
+      send(data[i]);
     }
   }
 
@@ -57,7 +57,7 @@ public:
   template<typename T>
   static inline void receive(T data[], uint8_t size) {
     for(uint8_t i = 0; i < size; ++i) {
-      data[i] = HWLayer::receiveByte();
+      receive<T>(data[i]);
     }
   }
 

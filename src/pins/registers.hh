@@ -39,13 +39,30 @@ struct regReaderHelper<reg, uint16_t> {
 };
 
 /* -------------------------------------------------------------------------- */
+template <typename reg, typename _reg_t>
+struct regWriterHelper {
+  static inline void set(_reg_t val) {
+    (*((volatile _reg_t*) reg::addr)) = val;
+  }
+};
+
+template <typename reg>
+struct regWriterHelper<reg, uint16_t> {
+  static inline void set(uint16_t val) {
+    reg::high::set(val >> 8);
+    reg::low::set(val & 0xFF);
+  }
+};
+
+
+/* -------------------------------------------------------------------------- */
 /* Registers                                                                  */
 /* -------------------------------------------------------------------------- */
 template <uint8_t address, typename _reg_t = uint8_t>
 class reg {
 public:
   enum { addr = address };
-  typedef reg<address, uint8_t> low;
+  typedef reg<address                           , uint8_t> low;
   typedef reg<address + reg_high<_reg_t>::offset, uint8_t> high;
   typedef _reg_t type;
 
@@ -80,7 +97,7 @@ public:
   { return  regReaderHelper<reg<address, _reg_t>, _reg_t>::val(); }
 
   static inline void set(_reg_t val)
-  { (*((volatile _reg_t*) address)) = val; }
+  { regWriterHelper<reg<address, _reg_t>, _reg_t>::set(val); }
 
   template<uint8_t pos, uint8_t mask>
   static inline void sbits(_reg_t v)

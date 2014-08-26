@@ -31,20 +31,20 @@ void init() {
   // 8 MHz (with a 16 MHz clock) at 50% duty cycle
 
   // set timer 0 prescale factor to 64
-  Timer0::setPrescaler(_timer_pt1_clk_64);
+  Timer0::setPrescaler(_timer_t0_clk_64);
   // configure timer 0 for phase correct pwm (8-bit)
-  Timer0::setWaveform (_timer_8bit_pwm_phase_corret_ff);
+  Timer0::setWaveform (_timer_t0_pwm_phase_corret_ff);
 
   // set timer 1 prescale factor to 64
-  Timer1::setPrescaler(_timer_pt1_clk_64);
+  Timer1::setPrescaler(_timer_t0_clk_64);
   // put timer 1 in 8-bit phase correct pwm mode
-  Timer1::setWaveform (_timer_10bit_pwm_phase_corret_ff_8);
+  Timer1::setWaveform (_timer_t1_pwm_phase_corret_ff_8);
 
 #if defined(TCCR2A) && !defined(__AVR_ATmega32U4__)
   // set timer 2 prescale factor to 64
-  Timer2::setPrescaler(_timer_pt2_clk_64);
+  Timer2::setPrescaler(_timer_t2_clk_64);
   // configure timer 2 for phase correct pwm (8-bit)
-  Timer2::setWaveform (_timer_8bit_pwm_phase_corret_ff);
+  Timer2::setWaveform (_timer_t0_pwm_phase_corret_ff);
 #endif
 
   // the bootloader connects pins 0 and 1 to the USART; disconnect them
