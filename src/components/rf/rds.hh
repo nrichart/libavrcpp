@@ -74,13 +74,6 @@ public:
 
   char * getProgName() { return this->text; }
 
-private:
-  void wipeText() {
-    memset(this->text     , 0, 64);
-    this->decoding_info = 0;
-    this->decoded &= ~_text;
-  }
-
   void wipe() {
     wipeText();
     memset(this->prog_name, 0,  8);
@@ -88,6 +81,13 @@ private:
     this->decoded = 0;
     this->pi = 0;
     this->pty = 0;
+  }
+
+private:
+  void wipeText() {
+    memset(this->text     , 0, 64);
+    this->decoding_info = 0;
+    this->decoded &= ~_text;
   }
 
   void decode0B(uint8_t c, const uint16_t & rdsd) {

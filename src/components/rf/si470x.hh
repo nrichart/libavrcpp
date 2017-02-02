@@ -317,8 +317,8 @@ public:
     return freq;
   }
 
-  static void seek(seek_direction_t direction = _seek_up,
-		   seek_mode_t mode = _seek_wrap,
+  static bool seek(seek_direction_t direction = _seek_up,
+                   seek_mode_t mode = _seek_wrap,
 		   uint8_t seek_rssi_threshold = 0x19,
 		   uint8_t seek_snr_threshold  = 0x4,
 		   uint8_t seek_fm_counts      = 0x8) {
