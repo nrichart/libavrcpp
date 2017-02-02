@@ -193,17 +193,26 @@ typedef TimerChannel<Timer2, _timer_channel_b> oc2b;
 /* -------------------------------------------------------------------------- */
 #include "pins/ext_interrupt.hh"
 
-typedef ExtInterrupt<0> int0;
-typedef ExtInterrupt<1> int1;
+typedef  bit<eimsk, INT0> int0;
+typedef  bit<eimsk, INT1> int1;
+typedef  bits<eicra, ISC00, 0x3> isc0x;
+typedef  bits<eicra, ISC10, 0x3> isc1x;
+
+typedef ExtInterrupt<int0, isc0x> exint0;
+typedef ExtInterrupt<int1, isc1x> exint1;
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
 /* -------------------------------------------------------------------------- */
 #include "pins/pc_interrupt.hh"
 
-typedef PCIntPort<pcmsk0, 0> pcint0;
-typedef PCIntPort<pcmsk1, 1> pcint1;
-typedef PCIntPort<pcmsk2, 2> pcint2;
+typedef bit<pcicr, PCIE0> pcie0;
+typedef bit<pcicr, PCIE1> pcie1;
+typedef bit<pcicr, PCIE2> pcie2;
+
+typedef PCIntPort<pcmsk0, pcie0> pcint0;
+typedef PCIntPort<pcmsk1, pcie1> pcint1;
+typedef PCIntPort<pcmsk2, pcie2> pcint2;
 
 /* -------------------------------------------------------------------------- */
 /* Port definitions                                                           */
@@ -221,8 +230,8 @@ typedef Port<pind, ddrd, portd, pcint2> PortD;
 
 typedef Pin<PortD, 0> pin0;
 typedef Pin<PortD, 1> pin1;
-typedef Pin<PortD, 2, int0> pin2;
-typedef Pin<PortD, 3, oc2b, int1> pin3;
+typedef Pin<PortD, 2, exint0> pin2;
+typedef Pin<PortD, 3, oc2b, exint1> pin3;
 typedef Pin<PortD, 4> pin4;
 typedef Pin<PortD, 5, oc0b> pin5;
 typedef Pin<PortD, 6, oc0a> pin6;

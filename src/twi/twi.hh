@@ -107,12 +107,12 @@ private:
     if(state & _repeat_start) {
       state &= ~_repeat_start; // clear the repeat restart status
       if(addr == _addr) {
-	twdr::set((rw & _write ? TW_WRITE : TW_READ) | (_addr << 1));
-	twcr::sbits<0, 0xB5>(0x85); // ~TWSTA + TWEN + TWINT + ~TWSTO + TWIE
+        twdr::set((rw & _write ? TW_WRITE : TW_READ) | (_addr << 1));
+        twcr::sbits<0, 0xB5>(0x85); // ~TWSTA + TWEN + TWINT + ~TWSTO + TWIE
       } else {
-	addr = _addr;
-	stop(twi_non_stop);
-	state |= _master | rw | (s << 6);
+        addr = _addr;
+        stop(twi_non_stop);
+        state |= _master | rw | (s << 6);
       }
     } else {
       addr = _addr;

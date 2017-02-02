@@ -311,11 +311,16 @@ typedef OutputCompare<TCC1, ocr1a, ocr1b> OC1;
 typedef OutputCompare<TCC3, ocr3a, ocr3b> OC3;
 typedef OutputCompare<TCC4, ocr4a, ocr4b, ocr4d> OC4;
 
+typedef bit<timsk0, TOIE0> toie0;
+typedef bit<timsk1, TOIE1> toie1;
+typedef bit<timsk3, TOIE3> toie3;
+typedef bit<timsk4, TOIE4> toie4;
 
-typedef Timer<OC0, tcnt0, timsk0, tifr0, 0> Timer0;
-typedef Timer<OC1, tcnt1, timsk1, tifr1, 1> Timer1;
-typedef Timer<OC3, tcnt3, timsk3, tifr3, 3> Timer3;
-typedef Timer<OC4, tcnt4, timsk4, tifr4, 4> Timer4;
+
+typedef Timer<OC0, tcnt0, toie0, 0> Timer0;
+typedef Timer<OC1, tcnt1, toie1, 1> Timer1;
+typedef Timer<OC3, tcnt3, toie3, 3> Timer3;
+typedef Timer<OC4, tcnt4, toie4, 4> Timer4;
 
 typedef TimerChannel<Timer0, _timer_channel_a> oc0a;
 typedef TimerChannel<Timer0, _timer_channel_b> oc0b;
@@ -334,18 +339,31 @@ typedef TimerChannel<Timer4, _timer_channel_d> oc4d;
 /* -------------------------------------------------------------------------- */
 #include "pins/ext_interrupt.hh"
 
-typedef ExtInterrupt<0> int0;
-typedef ExtInterrupt<1> int1;
-typedef ExtInterrupt<2> int2;
-typedef ExtInterrupt<3> int3;
-typedef ExtInterrupt<6> int6;
+typedef  bit<eimsk, INT0> int0;
+typedef  bit<eimsk, INT1> int1;
+typedef  bit<eimsk, INT2> int2;
+typedef  bit<eimsk, INT3> int3;
+typedef  bit<eimsk, INT6> int6;
+typedef  bits<eicra, ISC00, 0x3> isc0x;
+typedef  bits<eicra, ISC10, 0x3> isc1x;
+typedef  bits<eicra, ISC20, 0x3> isc2x;
+typedef  bits<eicra, ISC30, 0x3> isc3x;
+typedef  bits<eicrb, ISC60, 0x3> isc6x;
+
+typedef ExtInterrupt<int0, isc0x> exint0;
+typedef ExtInterrupt<int1, isc1x> exint1;
+typedef ExtInterrupt<int2, isc2x> exint2;
+typedef ExtInterrupt<int3, isc3x> exint3;
+typedef ExtInterrupt<int6, isc6x> exint6;
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
 /* -------------------------------------------------------------------------- */
 #include "pins/pc_interrupt.hh"
 
-typedef PCIntPort<pcmsk0, 0> pcint0;
+typedef bit<pcicr, PCIE0> pcie0;
+
+typedef PCIntPort<pcmsk0, pcie0> pcint0;
 
 /* -------------------------------------------------------------------------- */
 /* Port definitions                                                           */
@@ -363,14 +381,14 @@ typedef Port<pinf, ddrf, portf> PortF;
 /* -------------------------------------------------------------------------- */
 #include "pins/pin.hh"
 
-typedef Pin<PortD, 2, int2>        pin0;
-typedef Pin<PortD, 3, int3>        pin1;
-typedef Pin<PortD, 1, int1>        pin2;
-typedef Pin<PortD, 0, int0, oc0b>  pin3;
+typedef Pin<PortD, 2, exint2>      pin0;
+typedef Pin<PortD, 3, exint3>      pin1;
+typedef Pin<PortD, 1, exint1>      pin2;
+typedef Pin<PortD, 0, exint0, oc0b>  pin3;
 typedef Pin<PortD, 4, adc8>        pin4;
 typedef Pin<PortC, 6, oc3a>        pin5;
 typedef Pin<PortD, 7, adc10, oc4d> pin6;
-typedef Pin<PortE, 6, int6>        pin7;
+typedef Pin<PortE, 6, exint6>      pin7;
 typedef Pin<PortB, 4, adc11>       pin8;
 typedef Pin<PortB, 5, adc12, oc1a> pin9;
 typedef Pin<PortB, 6, adc13, oc1b> pin10;

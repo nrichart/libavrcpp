@@ -19,8 +19,8 @@ public:
 
 
   RDS() : decoded(_not_decoded), pi(0), pty(0), di(0), decoding_info(0) {
-    memset(this->prog_name, 0,  8);
-    memset(this->text     , 0, 64);
+    memset(this->prog_name, 0,  9);
+    memset(this->text     , 0, 65);
   }
 
   RDS & decode(const uint16_t & rdsa,
@@ -72,7 +72,14 @@ public:
   bool hasProgName() { return this->decoded & _prog_name; }
   bool hasText()     { return this->decoded & _text; }
 
-  char * getProgName() { return this->text; }
+  char * getProgName() { return this->prog_name; }
+  char * getText()     { return this->text; }
+
+  void wipeText() {
+    memset(this->text     , 0, 64);
+    this->decoding_info = 0;
+    this->decoded &= ~_text;
+  }
 
   void wipe() {
     wipeText();
@@ -84,11 +91,6 @@ public:
   }
 
 private:
-  void wipeText() {
-    memset(this->text     , 0, 64);
-    this->decoding_info = 0;
-    this->decoded &= ~_text;
-  }
 
   void decode0B(uint8_t c, const uint16_t & rdsd) {
     decodeDI(c & 0x7);
@@ -142,8 +144,8 @@ private:
   uint8_t decoded;
   uint16_t pi;
   uint8_t pty;
-  char prog_name[8];
-  char text[64];
+  char prog_name[9];
+  char text[65];
 
   uint8_t di;
 

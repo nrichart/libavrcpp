@@ -102,7 +102,6 @@ public:
   { tccrb::template sbits<0, 0xF>(prescaler); }
 };
 
-
 /* -------------------------------------------------------------------------- */
 /* Output                                                                     */
 /* -------------------------------------------------------------------------- */
@@ -156,7 +155,7 @@ typedef void (*user_ovf_t)(void);
 /* -------------------------------------------------------------------------- */
 template<typename oc_regs,
          typename tcnt,
-         typename timsk, typename tifr, uint8_t id,
+         typename toie_bit, uint8_t id,
          bool as_pwm = true,
          bool as_async = false>
 class Timer {
@@ -187,7 +186,7 @@ public:
   }
 
   static void enableOverflowInterrupt(user_ovf_t ovf) {
-    timsk::sbit(0);
+    toie_bit::set();
     user_ovf = ovf;
 
   }
@@ -227,8 +226,8 @@ public:
 
 
 template<typename oc_regs, typename tcnt,
-         typename timsk, typename tifr, uint8_t id,
+         typename toie_bit, , uint8_t id,
          bool as_pwm, bool as_async>
-user_ovf_t Timer<oc_regs, tcnt, timsk, tifr, id, as_pwm, as_async>::user_ovf = NULL;
+user_ovf_t Timer<oc_regs, tcnt, toie_bit, id, as_pwm, as_async>::user_ovf = NULL;
 
 #endif /* __TIMER_HH__ */

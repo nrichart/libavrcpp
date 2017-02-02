@@ -108,6 +108,10 @@ public:
 };
 
 /* -------------------------------------------------------------------------- */
+template <uint8_t address, typename _reg_t = uint8_t>
+class reg_io : public reg<address + _SFR_OFFSET, _reg_t> {};
+
+/* -------------------------------------------------------------------------- */
 /* Bit                                                                        */
 /* -------------------------------------------------------------------------- */
 template<typename reg, uint8_t b>
@@ -119,5 +123,16 @@ public:
   static inline void wait_is_clear() { reg::wait_bit_is_clear(b); }
   static inline void wait_is_set()   { reg::wait_bit_is_set(b); }
 };
+
+/* -------------------------------------------------------------------------- */
+/* Bits                                                                       */
+/* -------------------------------------------------------------------------- */
+template<typename reg, uint8_t start_bit, uint8_t mask>
+class bits {
+public:
+  static inline void set(reg::type val)   { reg::sbits<start_bit, mask>(val); }
+  static inline reg::type get() { return ((reg::get() >> start_bit) & mask); }
+};
+
 
 #endif /* __REGISTERS_HH__ */

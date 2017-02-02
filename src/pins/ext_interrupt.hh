@@ -30,20 +30,15 @@ enum external_trigger_t {
   _external_on_raising = 0x03
 };
 
-template<uint8_t int_num>
+template<typename msk_bit = int0, typename control_bits = isc0x>
 struct ExtInterrupt {
   static inline void IntOn(external_trigger_t mode) {
-    if(int_num < 6)
-      eicra::sbits<2*int_num, 0x3>(mode);
-#if defined(EICRB)
-    else if(int_num == 6)
-      eicrb::sbits<ISC60, 0x03>(mode);
-#endif
-    eimsk::sbit(int_num);							\
+    control_bits::set(mode);
+    msk_bit::set();
   }
 
   static inline void IntOff() {
-    eimsk::cbit(int_num);
+    msk_bit::clear();
   }
 
   enum { type_id = _type_external_interrupt };

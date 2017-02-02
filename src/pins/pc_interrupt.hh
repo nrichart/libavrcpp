@@ -20,11 +20,11 @@
 #ifndef PC_INTERRUPT_HH
 #define PC_INTERRUPT_HH
 
-template<typename pcmskx, uint8_t pcie>
+template<typename pcmskx, typename pcie_bit = pcie0>
 class PCIntPort {
 public:
   static inline void PCIntOn(uint8_t pin) {
-    pcicr::sbit(pcie);
+    pcie_bit::set();
     pcmskx::sbit(pin);
   }
 

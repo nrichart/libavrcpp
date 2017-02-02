@@ -29,3 +29,7 @@ add_avr_firmware(serial CONFIG arduino_pro_mini_3v PORT /dev/ttyUSB0
 add_avr_firmware(bmp085_test CONFIG arduino_pro_mini_3v PORT /dev/ttyUSB0
   bmp085_test.cc
   )
+
+add_avr_firmware(neo_ring_test CONFIG arduino_pro_mini_3v PORT /dev/ttyUSB0
+  neo_ring_test.cc
+  )
