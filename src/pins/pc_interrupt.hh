@@ -17,10 +17,15 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* -------------------------------------------------------------------------- */
+#include "common/common.hh"
+#include <stdint.h>
+/* -------------------------------------------------------------------------- */
+
 #ifndef PC_INTERRUPT_HH
 #define PC_INTERRUPT_HH
 
-template<typename pcmskx, typename pcie_bit = pcie0>
+template<typename pcmskx, typename pcie_bit>
 class PCIntPort {
 public:
   static inline void PCIntOn(uint8_t pin) {

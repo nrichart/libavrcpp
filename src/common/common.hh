@@ -17,31 +17,29 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
+/* -------------------------------------------------------------------------- */
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <avr/sfr_defs.h>
+/* -------------------------------------------------------------------------- */
 
 struct not_defined;
 
 #ifndef __COMMON_HH__
 #define __COMMON_HH__
 
-#ifndef cbi
-#  define cbi(sfr, bit) (sfr &= ~_BV(bit))
-#endif
+// #ifndef cbi
+// auto cbi = [](auto sfr, auto bit) { return (sfr &= ~_BV(bit)); };
+// #endif
 
-#ifndef sbi
-#  define sbi(sfr, bit) (sfr |= _BV(bit))
-#endif
+// #ifndef sbi
+// auto sbi = [](auto sfr, auto bit) { return (sfr &= ~_BV(bit)); };
+// #endif
 
-#define OUTPUT  0x1
-#define INPUT  0x0
-
-#define HIGH 0x1
-#define LOW  0x0
+enum : uint8_t { OUTPUT = 0x1, INPUT = 0x0 };
+enum : uint8_t { HIGH = 0x1, LOW = 0x0 };
 
 enum type_id_t {
   _type_unused,
@@ -53,18 +51,16 @@ enum type_id_t {
 
 
 #include "common/unused.hh"
-
-
 /* -------------------------------------------------------------------------- */
 template < typename T1, typename T2 >
-struct is_same {
-  enum { value = false };      // is_same represents a bool.
-};
+    struct is_same {
+    enum { value = false };      // is_same represents a bool.
+  };
 
-template < typename T >
-struct is_same<T, T> {
-  enum { value = true };
-};
+  template < typename T >
+    struct is_same<T, T> {
+    enum { value = true };
+  };
 
 #define min(x, y) ((x) > (y) ? (y) : (x))
 #define max(x, y) ((x) > (y) ? (x) : (y))

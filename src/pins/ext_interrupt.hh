@@ -30,7 +30,7 @@ enum external_trigger_t {
   _external_on_raising = 0x03
 };
 
-template<typename msk_bit = int0, typename control_bits = isc0x>
+template<typename msk_bit, typename control_bits>
 struct ExtInterrupt {
   static inline void IntOn(external_trigger_t mode) {
     control_bits::set(mode);
@@ -43,5 +43,21 @@ struct ExtInterrupt {
 
   enum { type_id = _type_external_interrupt };
 };
+
+#if defined(EXT_INT0)
+typedef ExtInterrupt<int0, isc0x> exint0;
+#endif
+#if defined(EXT_INT1)
+typedef ExtInterrupt<int1, isc1x> exint1;
+#endif
+#if defined(EXT_INT2)
+typedef ExtInterrupt<int2, isc2x> exint2;
+#endif
+#if defined(EXT_INT3)
+typedef ExtInterrupt<int3, isc3x> exint3;
+#endif
+#if defined(EXT_INT6)
+typedef ExtInterrupt<int6, isc6x> exint6;
+#endif
 
 #endif /* EXT_INTERRUPT_HH */

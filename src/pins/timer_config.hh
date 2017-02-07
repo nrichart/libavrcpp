@@ -17,6 +17,10 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* -------------------------------------------------------------------------- */
+#include "pins/timer.hh"
+/* -------------------------------------------------------------------------- */
+
 #ifndef TIMER_CONFIG_HH
 #define TIMER_CONFIG_HH
 
@@ -94,6 +98,8 @@ enum timer_waveform_t0_t {             // Mode               | TOP   | update OC
   _timer_t0_fast_pwm_ocra         = 7  // Fast PWM           | OCRnA | Bottom      | Top
 };
 
+typedef timer_waveform_t0_t timer_waveform_t2_t;
+
 /* -------------------------------------------------------------------------- */
 enum timer_waveform_t1_t {             // Mode                 |  TOP   | up OCRx | TOV flag
   _timer_t1_normal                = 0, // Normal               | 0xFFFF | Immedia | Max
@@ -115,6 +121,9 @@ enum timer_waveform_t1_t {             // Mode                 |  TOP   | up OCR
   _timer_t1_fast_pwm_ocra         = 15 // Fast PWM             | OCRnA  | Bottom  | Top
 };
 
+typedef timer_waveform_t1_t timer_waveform_t3_t;
+
+/* -------------------------------------------------------------------------- */
 enum timer_waveform_t4_t {            // Mode               | TOP   | update OCRn | TOV flag
   _timer_t4_normal            = 0x00, // Normal             | OCRnC | Immediate   | Top
   _timer_t4_fast_pwm          = 0x10, // Fast PWM           | OCRnC | Top         | Top
@@ -123,5 +132,66 @@ enum timer_waveform_t4_t {            // Mode               | TOP   | update OCR
   _timer_t4_pwm_single_slope  = 0x12, // PWM / Single slope | OCRnC | Top         | Top
   _timer_t4_pwm_dual_slope    = 0x13, // PWM / Dual slope   | OCRnC | Bottom      | Bottom
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+#if defined(TIMER0)
+typedef TimerCounterControl<timer_prescaler_t0_t, timer_waveform_t0_t, tccr0a, tccr0b> tcc0;
+
+typedef OutputCompare<tcc0, ocr0a, ocr0b> oc0;
+
+typedef Timer<oc0, tcnt0, toie0, 0> Timer0;
+
+typedef TimerChannel<Timer0, _timer_channel_a> oc0a;
+typedef TimerChannel<Timer0, _timer_channel_b> oc0b;
+#endif
+
+#if defined(TIMER1)
+typedef TimerCounterControl<timer_prescaler_t1_t, timer_waveform_t1_t, tccr1a, tccr1b, tccr1c> tcc1;
+typedef OutputCompare<tcc1, ocr1a, ocr1b> oc1;
+
+typedef Timer<oc1, tcnt1, toie1, 1> Timer1;
+
+typedef TimerChannel<Timer1, _timer_channel_a> oc1a;
+typedef TimerChannel<Timer1, _timer_channel_b> oc1b;
+#endif
+
+#if defined(TIMER2)
+typedef TimerCounterControl<timer_prescaler_t2_t, timer_waveform_t2_t, tccr2a, tccr2b> tcc2;
+
+typedef OutputCompare<tcc2, ocr2a, ocr2b> oc2;
+
+typedef Timer<oc2, tcnt2, toie2, 2> Timer2;
+
+typedef TimerChannel<Timer2, _timer_channel_a> oc2a;
+typedef TimerChannel<Timer2, _timer_channel_b> oc2b;
+#endif
+
+#if defined(TIMER3)
+typedef TimerCounterControl<timer_prescaler_t3_t, timer_waveform_t3_t, tccr3a, tccr3b, tccr3c> tcc3;
+
+typedef OutputCompare<tcc3, ocr3a, ocr3b> oc3;
+
+typedef Timer<oc3, tcnt3, toie3, 3> Timer3;
+
+typedef TimerChannel<Timer3, _timer_channel_a> oc3a;
+typedef TimerChannel<Timer3, _timer_channel_b> oc3b;
+#endif
+
+#if defined(TIMER4)
+typedef TimerCounterControl<timer_prescaler_t4_t, timer_waveform_t4_t, tccr4a, tccr4b, tccr4c, tccr4d, tccr4e, true> tcc4;
+
+typedef OutputCompare<tcc4, ocr4a, ocr4b, ocr4d> oc4;
+
+typedef Timer<oc4, tcnt4, toie4, 4> Timer4;
+
+typedef TimerChannel<Timer4, _timer_channel_a> oc4a;
+typedef TimerChannel<Timer4, _timer_channel_b> oc4b;
+typedef TimerChannel<Timer4, _timer_channel_c> oc4c;
+typedef TimerChannel<Timer4, _timer_channel_d> oc4d;
+#endif
+/* -------------------------------------------------------------------------- */
+
+
 
 #endif // TIMER_CONFIG_HH

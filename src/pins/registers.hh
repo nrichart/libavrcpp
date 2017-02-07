@@ -109,7 +109,7 @@ public:
 
 /* -------------------------------------------------------------------------- */
 template <uint8_t address, typename _reg_t = uint8_t>
-class reg_io : public reg<address + _SFR_OFFSET, _reg_t> {};
+class reg_io : public reg<address + __SFR_OFFSET, _reg_t> {};
 
 /* -------------------------------------------------------------------------- */
 /* Bit                                                                        */
@@ -130,8 +130,8 @@ public:
 template<typename reg, uint8_t start_bit, uint8_t mask>
 class bits {
 public:
-  static inline void set(reg::type val)   { reg::sbits<start_bit, mask>(val); }
-  static inline reg::type get() { return ((reg::get() >> start_bit) & mask); }
+  static inline void set(typename reg::type val)   { reg::sbits<start_bit, mask>(val); }
+  static inline typename reg::type get() { return ((reg::get() >> start_bit) & mask); }
 };
 
 

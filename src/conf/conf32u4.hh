@@ -58,57 +58,57 @@
 /* Registers definitions                                                      */
 /* -------------------------------------------------------------------------- */
 #include "pins/registers.hh"
-typedef reg<0x03 + __SFR_OFFSET> pinb;
-typedef reg<0x04 + __SFR_OFFSET> ddrb;
-typedef reg<0x05 + __SFR_OFFSET> portb;
-typedef reg<0x06 + __SFR_OFFSET> pinc;
-typedef reg<0x07 + __SFR_OFFSET> ddrc;
-typedef reg<0x08 + __SFR_OFFSET> portc;
-typedef reg<0x09 + __SFR_OFFSET> pind;
-typedef reg<0x0A + __SFR_OFFSET> ddrd;
-typedef reg<0x0B + __SFR_OFFSET> portd;
-typedef reg<0x0C + __SFR_OFFSET> pine;
-typedef reg<0x0D + __SFR_OFFSET> ddre;
-typedef reg<0x0E + __SFR_OFFSET> porte;
-typedef reg<0x0F + __SFR_OFFSET> pinf;
-typedef reg<0x10 + __SFR_OFFSET> ddrf;
-typedef reg<0x11 + __SFR_OFFSET> portf;
-typedef reg<0x15 + __SFR_OFFSET> tifr0;
-typedef reg<0x16 + __SFR_OFFSET> tifr1;
-typedef reg<0x17 + __SFR_OFFSET> tifr2;
-typedef reg<0x18 + __SFR_OFFSET> tifr3;
-typedef reg<0x19 + __SFR_OFFSET> tifr4;
-typedef reg<0x1A + __SFR_OFFSET> tifr5;
-typedef reg<0x1B + __SFR_OFFSET> pcifr;
-typedef reg<0x1C + __SFR_OFFSET> eifr;
-typedef reg<0x1D + __SFR_OFFSET> eimsk;
-typedef reg<0x1E + __SFR_OFFSET> gpior0;
-typedef reg<0x1F + __SFR_OFFSET> eecr;
-typedef reg<0x20 + __SFR_OFFSET> eedr;
-typedef reg<0x21 + __SFR_OFFSET, uint16_t> eear;
-typedef reg<0x21 + __SFR_OFFSET> eearl;
-typedef reg<0x22 + __SFR_OFFSET> eearh;
-typedef reg<0x23 + __SFR_OFFSET> gtccr;
-typedef reg<0x24 + __SFR_OFFSET> tccr0a;
-typedef reg<0x25 + __SFR_OFFSET> tccr0b;
-typedef reg<0x26 + __SFR_OFFSET> tcnt0;
-typedef reg<0x27 + __SFR_OFFSET> ocr0a;
-typedef reg<0x28 + __SFR_OFFSET> ocr0b;
-typedef reg<0x29 + __SFR_OFFSET> pllcsr;
-typedef reg<0x2A + __SFR_OFFSET> gpior1;
-typedef reg<0x2B + __SFR_OFFSET> gpior2;
-typedef reg<0x2C + __SFR_OFFSET> spcr;
-typedef reg<0x2D + __SFR_OFFSET> spsr;
-typedef reg<0x2E + __SFR_OFFSET> spdr;
-typedef reg<0x30 + __SFR_OFFSET> acsr;
-typedef reg<0x31 + __SFR_OFFSET> ocdr;
-typedef reg<0x32 + __SFR_OFFSET> pllfrq;
-typedef reg<0x33 + __SFR_OFFSET> smcr;
-typedef reg<0x34 + __SFR_OFFSET> mcusr;
-typedef reg<0x35 + __SFR_OFFSET> mcucr;
-typedef reg<0x37 + __SFR_OFFSET> spmcsr;
-typedef reg<0x3B + __SFR_OFFSET> rampz;
-typedef reg<0x3C + __SFR_OFFSET> eind;
+typedef reg_io<0x03> pinb;
+typedef reg_io<0x04> ddrb;
+typedef reg_io<0x05> portb;
+typedef reg_io<0x06> pinc;
+typedef reg_io<0x07> ddrc;
+typedef reg_io<0x08> portc;
+typedef reg_io<0x09> pind;
+typedef reg_io<0x0A> ddrd;
+typedef reg_io<0x0B> portd;
+typedef reg_io<0x0C> pine;
+typedef reg_io<0x0D> ddre;
+typedef reg_io<0x0E> porte;
+typedef reg_io<0x0F> pinf;
+typedef reg_io<0x10> ddrf;
+typedef reg_io<0x11> portf;
+typedef reg_io<0x15> tifr0;
+typedef reg_io<0x16> tifr1;
+typedef reg_io<0x17> tifr2;
+typedef reg_io<0x18> tifr3;
+typedef reg_io<0x19> tifr4;
+typedef reg_io<0x1A> tifr5;
+typedef reg_io<0x1B> pcifr;
+typedef reg_io<0x1C> eifr;
+typedef reg_io<0x1D> eimsk;
+typedef reg_io<0x1E> gpior0;
+typedef reg_io<0x1F> eecr;
+typedef reg_io<0x20> eedr;
+typedef reg_io<0x21, uint16_t> eear;
+typedef reg_io<0x21> eearl;
+typedef reg_io<0x22> eearh;
+typedef reg_io<0x23> gtccr;
+typedef reg_io<0x24> tccr0a;
+typedef reg_io<0x25> tccr0b;
+typedef reg_io<0x26> tcnt0;
+typedef reg_io<0x27> ocr0a;
+typedef reg_io<0x28> ocr0b;
+typedef reg_io<0x29> pllcsr;
+typedef reg_io<0x2A> gpior1;
+typedef reg_io<0x2B> gpior2;
+typedef reg_io<0x2C> spcr;
+typedef reg_io<0x2D> spsr;
+typedef reg_io<0x2E> spdr;
+typedef reg_io<0x30> acsr;
+typedef reg_io<0x31> ocdr;
+typedef reg_io<0x32> pllfrq;
+typedef reg_io<0x33> smcr;
+typedef reg_io<0x34> mcusr;
+typedef reg_io<0x35> mcucr;
+typedef reg_io<0x37> spmcsr;
+typedef reg_io<0x3B> rampz;
+typedef reg_io<0x3C> eind;
 typedef reg<0x60> wdtcsr;
 typedef reg<0x61> clkpr;
 typedef reg<0x64> prr0;
@@ -289,56 +289,21 @@ typedef ADCPort<0x25> adc13;
 /* -------------------------------------------------------------------------- */
 /* Timers                                                                     */
 /* -------------------------------------------------------------------------- */
-#include "pins/timer.hh"
-
-typedef timer_prescaler_type_1_t timer0_prescaler_t;
-typedef timer_prescaler_type_1_t timer1_prescaler_t;
-typedef timer_prescaler_type_1_t timer3_prescaler_t;
-typedef timer_prescaler_type_3_t timer4_prescaler_t;
-
-typedef TimerCounterControl<timer0_prescaler_t, timer_8bit_waveform_t,
-                            tccr0a, tccr0b>         TCC0;
-typedef TimerCounterControl<timer1_prescaler_t, timer_10bit_waveform_t,
-                            tccr1a, tccr1b, tccr1c> TCC1;
-typedef TimerCounterControl<timer3_prescaler_t, timer_10bit_waveform_t,
-                            tccr3a, tccr3b, tccr3c> TCC3;
-typedef TimerCounterControl<timer4_prescaler_t, timer_hs_waveform_t,
-                            tccr4a, tccr4b, tccr4c,
-                            tccr4d, tccr4e, true>   TCC4;
-
-typedef OutputCompare<TCC0, ocr0a, ocr0b> OC0;
-typedef OutputCompare<TCC1, ocr1a, ocr1b> OC1;
-typedef OutputCompare<TCC3, ocr3a, ocr3b> OC3;
-typedef OutputCompare<TCC4, ocr4a, ocr4b, ocr4d> OC4;
+#define TIMER0
+#define TIMER1
+#define TIMER3
+#define TIMER4
 
 typedef bit<timsk0, TOIE0> toie0;
 typedef bit<timsk1, TOIE1> toie1;
 typedef bit<timsk3, TOIE3> toie3;
 typedef bit<timsk4, TOIE4> toie4;
 
-
-typedef Timer<OC0, tcnt0, toie0, 0> Timer0;
-typedef Timer<OC1, tcnt1, toie1, 1> Timer1;
-typedef Timer<OC3, tcnt3, toie3, 3> Timer3;
-typedef Timer<OC4, tcnt4, toie4, 4> Timer4;
-
-typedef TimerChannel<Timer0, _timer_channel_a> oc0a;
-typedef TimerChannel<Timer0, _timer_channel_b> oc0b;
-typedef TimerChannel<Timer1, _timer_channel_a> oc1a;
-typedef TimerChannel<Timer1, _timer_channel_b> oc1b;
-typedef TimerChannel<Timer3, _timer_channel_a> oc3a;
-typedef TimerChannel<Timer3, _timer_channel_b> oc3b;
-typedef TimerChannel<Timer4, _timer_channel_a> oc4a;
-typedef TimerChannel<Timer4, _timer_channel_b> oc4b;
-typedef TimerChannel<Timer4, _timer_channel_c> oc4c;
-typedef TimerChannel<Timer4, _timer_channel_d> oc4d;
-
+#include "pins/timer_config.hh"
 
 /* -------------------------------------------------------------------------- */
 /* External Interrupt                                                         */
 /* -------------------------------------------------------------------------- */
-#include "pins/ext_interrupt.hh"
-
 typedef  bit<eimsk, INT0> int0;
 typedef  bit<eimsk, INT1> int1;
 typedef  bit<eimsk, INT2> int2;
@@ -350,15 +315,18 @@ typedef  bits<eicra, ISC20, 0x3> isc2x;
 typedef  bits<eicra, ISC30, 0x3> isc3x;
 typedef  bits<eicrb, ISC60, 0x3> isc6x;
 
-typedef ExtInterrupt<int0, isc0x> exint0;
-typedef ExtInterrupt<int1, isc1x> exint1;
-typedef ExtInterrupt<int2, isc2x> exint2;
-typedef ExtInterrupt<int3, isc3x> exint3;
-typedef ExtInterrupt<int6, isc6x> exint6;
+#define EXT_INT0
+#define EXT_INT1
+#define EXT_INT2
+#define EXT_INT3
+#define EXT_INT6
+
+#include "pins/ext_interrupt.hh"
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
 /* -------------------------------------------------------------------------- */
+
 #include "pins/pc_interrupt.hh"
 
 typedef bit<pcicr, PCIE0> pcie0;

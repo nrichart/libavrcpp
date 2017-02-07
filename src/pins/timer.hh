@@ -20,7 +20,6 @@
 /* -------------------------------------------------------------------------- */
 #include "common/unused.hh"
 
-#include "pins/timer_config.hh"
 #include "pins/registers.hh"
 /* -------------------------------------------------------------------------- */
 
@@ -155,7 +154,8 @@ typedef void (*user_ovf_t)(void);
 /* -------------------------------------------------------------------------- */
 template<typename oc_regs,
          typename tcnt,
-         typename toie_bit, uint8_t id,
+         typename toie_bit,
+         uint8_t id,
          bool as_pwm = true,
          bool as_async = false>
 class Timer {
@@ -223,11 +223,10 @@ public:
   enum { type_id = _type_timer_channel };
 };
 
-
-
 template<typename oc_regs, typename tcnt,
-         typename toie_bit, , uint8_t id,
+         typename toie_bit, uint8_t id,
          bool as_pwm, bool as_async>
-user_ovf_t Timer<oc_regs, tcnt, toie_bit, id, as_pwm, as_async>::user_ovf = NULL;
+user_ovf_t Timer<oc_regs, tcnt, toie_bit, id, as_pwm, as_async>::user_ovf = nullptr;
+
 
 #endif /* __TIMER_HH__ */

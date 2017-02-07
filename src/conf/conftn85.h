@@ -119,26 +119,22 @@ typedef ADCPort<0x0F> adctemp;
 /* -------------------------------------------------------------------------- */
 /* Timers                                                                     */
 /* -------------------------------------------------------------------------- */
-#include "pins/timer.hh"
-
-typedef timer_prescaler_t0_t timer0_prescaler_t;
-typedef timer_prescaler_t4_t timer1_prescaler_t;
-
-typedef TimerCounterControl<timer0_prescaler_t, timer_waveform_t0_t, tccr0a, tccr0b> tcc0;
-typedef OutputCompare<tcc0, ocr0a, ocr0b> OC0;
+#define TIMER0
 
 typedef bit<timsk, TOIE0> toie0;
 typedef bit<timsk, TOIE1> toie1;
 
-typedef Timer<OC0, tcnt0, toie0, 0> Timer0;
+#include "pins/timer_config.hh"
+
 
 template<timer_channel_t channel>
 class TimerChannelTimyx5 {
 public:
-  typedef typename timer::prescaler_t prescaler_t;
+  typedef typename timer_prescaler_t4_t prescaler_t;
 
   static inline void setPrescaler(prescaler_t prescaler)
-  { tccr1::sbits<CS10,0xF>(prescaler); }
+  { tccr1::sbits<CS10, 0xF>(prescaler); }
+
   static inline void setMode(timer_mode_t mode) {
     switch(channel) {
     case _timer_channel_a: tccr1::sbits<COM1A0, 0x3>(val);
@@ -166,20 +162,20 @@ private:
 template<timer_channel_t channel>
 user_ovf_t TimerChannelTimyx5<channel>::user_ovf = NULL;
 
-typedef TimerChannel<Timer0, _timer_channel_a> oc0a;
-typedef TimerChannel<Timer0, _timer_channel_b> oc0b;
 typedef TimerChannelTimyx5<_timer_channel_a> oc1a;
 typedef TimerChannelTimyx5<_timer_channel_b> oc1b;
+
+typedef OutputCompare<gtccr, ocr1a, ocr1b>
 
 /* -------------------------------------------------------------------------- */
 /* External Interrupt                                                         */
 /* -------------------------------------------------------------------------- */
-#include "pins/ext_interrupt.hh"
-
 typedef bit<gimsk, INTO> int0;
 typedef bits<mcucr, ISC00, 0x3> isc0x;
 
-typedef ExtInterrupt<int0, isc0x> extint0;
+#define EXT_INT0
+
+#include "pins/ext_interrupt.hh"
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
@@ -187,7 +183,7 @@ typedef ExtInterrupt<int0, isc0x> extint0;
 #include "pins/pc_interrupt.hh"
 
 typedef bit<gimsk, PCIE> pcie;
-typedef PCIntPort<pcmsk, 0> pcint0;
+typedef PCIntPort<pcmsk, pcie> pcint0;
 
 /* -------------------------------------------------------------------------- */
 /* Port definitions                                                           */
@@ -209,29 +205,29 @@ typedef Pin<PortB, 4, adc2, oc1b>          pin4;
 typedef Pin<PortB, 5, adc0>                pin5;
 
 /* -- SPI ports ------------------------------------------------------------- */
-typedef pin13 sck;
-typedef pin12 miso;
-typedef pin11 mosi;
-typedef pin10 ss;
-/* -- I2C ports ------------------------------------------------------------- */
-typedef pinA5 scl;
-typedef pinA4 sda;
+/* typedef pin13 sck; */
+/* typedef pin12 miso; */
+/* typedef pin11 mosi; */
+/* typedef pin10 ss; */
+/* /\* -- I2C ports ------------------------------------------------------------- *\/ */
+/* typedef pinA5 scl; */
+/* typedef pinA4 sda; */
 
 /* -------------------------------------------------------------------------- */
 /* Serial                                                                     */
 /* -------------------------------------------------------------------------- */
-#include "serial/hw_serial.hh"
+/* #include "serial/hw_serial.hh" */
 
-typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0;
+/* typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0; */
 
-/* -------------------------------------------------------------------------- */
-/* SPI                                                                        */
-/* -------------------------------------------------------------------------- */
-#include "spi/hw_spi.hh"
+/* /\* -------------------------------------------------------------------------- *\/ */
+/* /\* SPI                                                                        *\/ */
+/* /\* -------------------------------------------------------------------------- *\/ */
+/* #include "spi/hw_spi.hh" */
 
-template<typename _ss = ss>
-class SPI : public HWSPI<sck, miso, mosi, _ss> {};
+/* template<typename _ss = ss> */
+/* class SPI : public HWSPI<sck, miso, mosi, _ss> {}; */
 
-typedef SPI<pin10> SPI0;
+/* typedef SPI<pin10> SPI0; */
 
 #endif // CONFTN85_HH

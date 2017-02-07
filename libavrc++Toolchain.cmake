@@ -1,5 +1,7 @@
 set(CMAKE_SYSTEM_NAME Generic)
 
+set(CMAKE_CXX_STANDARD 14)
+
 find_program(CMAKE_C_COMPILER   "avr-gcc")
 find_program(CMAKE_CXX_COMPILER "avr-g++")
 

@@ -17,7 +17,6 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef CONF328P_HH
 #define CONF328P_HH
 
@@ -45,43 +44,43 @@ XTAL2 / PCINT7  / TOSC2       PB7 10|    |19  PB5 (D13)         PCINT5  / SCK
 /* -------------------------------------------------------------------------- */
 #include "pins/registers.hh"
 
-typedef reg<0x03 + __SFR_OFFSET> pinb;
-typedef reg<0x04 + __SFR_OFFSET> ddrb;
-typedef reg<0x05 + __SFR_OFFSET> portb;
-typedef reg<0x06 + __SFR_OFFSET> pinc;
-typedef reg<0x07 + __SFR_OFFSET> ddrc;
-typedef reg<0x08 + __SFR_OFFSET> portc;
-typedef reg<0x09 + __SFR_OFFSET> pind;
-typedef reg<0x0A + __SFR_OFFSET> ddrd;
-typedef reg<0x0B + __SFR_OFFSET> portd;
-typedef reg<0x15 + __SFR_OFFSET> tifr0;
-typedef reg<0x16 + __SFR_OFFSET> tifr1;
-typedef reg<0x17 + __SFR_OFFSET> tifr2;
-typedef reg<0x1B + __SFR_OFFSET> pcifr;
-typedef reg<0x1C + __SFR_OFFSET> eifr;
-typedef reg<0x1D + __SFR_OFFSET> eimsk;
-typedef reg<0x1E + __SFR_OFFSET> gpior0;
-typedef reg<0x1F + __SFR_OFFSET> eecr;
-typedef reg<0x20 + __SFR_OFFSET> eedr;
-typedef reg<0x21 + __SFR_OFFSET, uint16_t> eear;
-typedef reg<0x21 + __SFR_OFFSET> eearl;
-typedef reg<0x22 + __SFR_OFFSET> eearh;
-typedef reg<0x23 + __SFR_OFFSET> gtccr;
-typedef reg<0x24 + __SFR_OFFSET> tccr0a;
-typedef reg<0x25 + __SFR_OFFSET> tccr0b;
-typedef reg<0x26 + __SFR_OFFSET> tcnt0;
-typedef reg<0x27 + __SFR_OFFSET> ocr0a;
-typedef reg<0x28 + __SFR_OFFSET> ocr0b;
-typedef reg<0x2A + __SFR_OFFSET> gpior1;
-typedef reg<0x2B + __SFR_OFFSET> gpior2;
-typedef reg<0x2C + __SFR_OFFSET> spcr;
-typedef reg<0x2D + __SFR_OFFSET> spsr;
-typedef reg<0x2E + __SFR_OFFSET> spdr;
-typedef reg<0x30 + __SFR_OFFSET> acsr;
-typedef reg<0x33 + __SFR_OFFSET> smcr;
-typedef reg<0x34 + __SFR_OFFSET> mcusr;
-typedef reg<0x35 + __SFR_OFFSET> mcucr;
-typedef reg<0x37 + __SFR_OFFSET> spmcsr;
+typedef reg_io<0x03> pinb;
+typedef reg_io<0x04> ddrb;
+typedef reg_io<0x05> portb;
+typedef reg_io<0x06> pinc;
+typedef reg_io<0x07> ddrc;
+typedef reg_io<0x08> portc;
+typedef reg_io<0x09> pind;
+typedef reg_io<0x0A> ddrd;
+typedef reg_io<0x0B> portd;
+typedef reg_io<0x15> tifr0;
+typedef reg_io<0x16> tifr1;
+typedef reg_io<0x17> tifr2;
+typedef reg_io<0x1B> pcifr;
+typedef reg_io<0x1C> eifr;
+typedef reg_io<0x1D> eimsk;
+typedef reg_io<0x1E> gpior0;
+typedef reg_io<0x1F> eecr;
+typedef reg_io<0x20> eedr;
+typedef reg_io<0x21, uint16_t> eear;
+typedef reg_io<0x21> eearl;
+typedef reg_io<0x22> eearh;
+typedef reg_io<0x23> gtccr;
+typedef reg_io<0x24> tccr0a;
+typedef reg_io<0x25> tccr0b;
+typedef reg_io<0x26> tcnt0;
+typedef reg_io<0x27> ocr0a;
+typedef reg_io<0x28> ocr0b;
+typedef reg_io<0x2A> gpior1;
+typedef reg_io<0x2B> gpior2;
+typedef reg_io<0x2C> spcr;
+typedef reg_io<0x2D> spsr;
+typedef reg_io<0x2E> spdr;
+typedef reg_io<0x30> acsr;
+typedef reg_io<0x33> smcr;
+typedef reg_io<0x34> mcusr;
+typedef reg_io<0x35> mcucr;
+typedef reg_io<0x37> spmcsr;
 typedef reg<0x60> wdtcsr;
 typedef reg<0x61> clkpr;
 typedef reg<0x64> prr;
@@ -160,46 +159,28 @@ typedef ADCPort<0x0F> adcgnd;
 /* -------------------------------------------------------------------------- */
 /* Timers                                                                     */
 /* -------------------------------------------------------------------------- */
-#include "pins/timer.hh"
+#define TIMER0
+#define TIMER1
+#define TIMER2
 
-typedef timer_prescaler_t0_t timer0_prescaler_t;
-typedef timer_prescaler_t0_t timer1_prescaler_t;
-typedef timer_prescaler_t2_t timer2_prescaler_t;
+typedef bit<timsk0, TOIE0> toie0;
+typedef bit<timsk1, TOIE1> toie1;
+typedef bit<timsk2, TOIE2> toie2;
 
-typedef TimerCounterControl<timer0_prescaler_t, timer_waveform_t0_t,
-                            tccr0a, tccr0b>         TCC0;
-typedef TimerCounterControl<timer1_prescaler_t, timer_waveform_t1_t,
-                            tccr1a, tccr1b, tccr1c> TCC1;
-typedef TimerCounterControl<timer2_prescaler_t, timer_waveform_t0_t,
-                            tccr2a, tccr2b>         TCC2;
-
-typedef OutputCompare<TCC0, ocr0a, ocr0b> OC0;
-typedef OutputCompare<TCC1, ocr1a, ocr1b> OC1;
-typedef OutputCompare<TCC2, ocr2a, ocr2b> OC2;
-
-typedef Timer<OC0, tcnt0, timsk0, tifr0, 0> Timer0;
-typedef Timer<OC1, tcnt1, timsk1, tifr1, 1> Timer1;
-typedef Timer<OC2, tcnt2, timsk2, tifr2, 2> Timer2;
-
-typedef TimerChannel<Timer0, _timer_channel_a> oc0a;
-typedef TimerChannel<Timer0, _timer_channel_b> oc0b;
-typedef TimerChannel<Timer1, _timer_channel_a> oc1a;
-typedef TimerChannel<Timer1, _timer_channel_b> oc1b;
-typedef TimerChannel<Timer2, _timer_channel_a> oc2a;
-typedef TimerChannel<Timer2, _timer_channel_b> oc2b;
+#include "pins/timer_config.hh"
 
 /* -------------------------------------------------------------------------- */
 /* External Interrupt                                                         */
 /* -------------------------------------------------------------------------- */
+typedef bit<eimsk, INT0> int0;
+typedef bit<eimsk, INT1> int1;
+typedef bits<eicra, ISC00, 0x3> isc0x;
+typedef bits<eicra, ISC10, 0x3> isc1x;
+
+#define EXT_INT0
+#define EXT_INT1
+
 #include "pins/ext_interrupt.hh"
-
-typedef  bit<eimsk, INT0> int0;
-typedef  bit<eimsk, INT1> int1;
-typedef  bits<eicra, ISC00, 0x3> isc0x;
-typedef  bits<eicra, ISC10, 0x3> isc1x;
-
-typedef ExtInterrupt<int0, isc0x> exint0;
-typedef ExtInterrupt<int1, isc1x> exint1;
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
@@ -270,8 +251,7 @@ typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0;
 /* -------------------------------------------------------------------------- */
 #include "spi/hw_spi.hh"
 
-template<typename _ss = ss>
-class SPI : public HWSPI<sck, miso, mosi, _ss> {};
+template <typename _ss = ss> class SPI : public HWSPI<sck, miso, mosi, _ss> {};
 
 typedef SPI<pin10> SPI0;
 

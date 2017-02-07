@@ -139,7 +139,7 @@ struct WS281xDisplayHelper<pin, _ws281x_800_khz> {
 	 [lo]     "r" (lo)
        );
 #elif (F_CPU >= 15400000UL) && (F_CPU <= 19000000L)
-    volatie uint8_t tmp = lo,  bit = 8;
+    volatile uint8_t tmp = lo,  bit = 8;
 
     asm volatile
       (
