@@ -247,12 +247,7 @@ typedef pinA4 sda;
 typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0;
 
 /* -------------------------------------------------------------------------- */
-/* SPI                                                                        */
-/* -------------------------------------------------------------------------- */
+#include "twi/twi.hh"
 #include "spi/hw_spi.hh"
-
-template <typename _ss = ss> class SPI : public HWSPI<sck, miso, mosi, _ss> {};
-
-typedef SPI<pin10> SPI0;
 
 #endif // CONF328P_HH

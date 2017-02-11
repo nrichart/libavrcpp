@@ -387,11 +387,23 @@ typedef pin12                      pinA11;
 
 typedef HWSerial<ucsr1a, ucsr1b, ucsr1c, ubrr1h, ubrr1l, udr1> Serial1;
 typedef Serial1 Serial0; /// \todo code the usb interface
+
+/* -------------------------------------------------------------------------- */
+/* I2C                                                                        */
+/* -------------------------------------------------------------------------- */
+typedef pin3 scl;
+typedef pin2 sda;
+
 /* -------------------------------------------------------------------------- */
 /* SPI                                                                        */
 /* -------------------------------------------------------------------------- */
+typedef pin17 ss;
+typedef pin15 sck;
+typedef pin16 mosi;
+typedef pin14 miso;
+
+#include "twi/twi.hh"
 #include "spi/hw_spi.hh"
 
-typedef HWSPI<pin15, pin14, pin16, pin17> SPI0;
 
 #endif // CONF32U4_HH

@@ -212,5 +212,15 @@ Queue<uint8_t, uint8_t, SPI_BUFFER_SIZE> HWSPI<_sck, _miso, _mosi, _ss, slave,
 #endif
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+#if !defined (NO_DEFAULT_SPI)
+template<typename _ss = ss>
+using SPI = HWSPI<sck, mosi, mosi, _ss>;
+
+typedef SPI<ss> SPI0;
+#endif
+/* -------------------------------------------------------------------------- */
+
+
 
 #endif /* HWSPI_HH */
