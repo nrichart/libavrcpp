@@ -61,6 +61,7 @@ template <typename reg> struct regWriterHelper<reg, uint16_t> {
 
 /* -------------------------------------------------------------------------- */
 template <typename reg, uint8_t b> class bit;
+template <typename reg, uint8_t b, uint8_t mask> class bits;
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -69,6 +70,7 @@ template <typename reg, uint8_t b> class bit;
 template <uint8_t address, typename _reg_t = uint8_t> class reg {
 public:
   template <uint8_t b> using bit = bit<reg<address, _reg_t>, b>;
+  template <uint8_t b, uint8_t mask> using bits = bits<reg<address, _reg_t>, b, mask>;
 
   enum { addr = address };
   typedef reg<address, uint8_t> low;
@@ -177,8 +179,10 @@ public:
     reg::sbits<start_bit, mask>(val);
   }
   static inline typename reg::type get() {
-    return ((reg::get() >> start_bit) & mask);
+    return ((reg::val() >> start_bit) & mask);
   }
 };
+
+
 
 #endif /* __REGISTERS_HH__ */

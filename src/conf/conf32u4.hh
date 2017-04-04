@@ -403,7 +403,6 @@ typedef pin16 mosi;
 typedef pin14 miso;
 
 #include "twi/twi.hh"
-#include "spi/hw_spi.hh"
-
+#include "spi/spi.hh"
 
 #endif // CONF32U4_HH

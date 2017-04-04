@@ -16,58 +16,54 @@
    You should  have received  a copy  of the GNU  Lesser General  Public License
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
+/* -------------------------------------------------------------------------- */
+#include "spi/spi_interface.hh"
+/* -------------------------------------------------------------------------- */
 
-#ifndef SW_SPI_HH
-#define SW_SPI_HH
+#ifndef SPI_SW_INTERFACE_HH
+#define SPI_SW_INTERFACE_HH
 
-#include "spi/spi.hh"
+namespace spi {
 
 /* -------------------------------------------------------------------------- */
 /* Bit banging SPI                                                            */
 /* -------------------------------------------------------------------------- */
-template<typename _sck, typename _miso, typename _mosi, typename _ss = unused_type,
-         bool slave = is_same<_ss, unused_type>::value>
-class SWSPI : public SPIInterface< _sck, _miso, _mosi, _ss,
-				   SWSPI<_sck, _miso, _mosi, _ss, slave> > {
-protected:
-  typedef SPIInterface< _sck, _miso, _mosi, _ss,
-			SWSPI<_sck, _miso, _mosi, _ss, slave> > interface;
+template <typename _sck, typename _miso, typename _mosi, typename _ss>
+class SPIInterface<_sck, _miso, _mosi, _ss, _sw_spi>
+    : public Communication<SPIInterface<_sck, _miso, _mosi, _ss, _sw_spi>> {
 public:
   /* ------------------------------------------------------------------------ */
   static void activate() {
-    interface::activate();
     _sck::low();
 
-    bit_order = _spi_bo_lsb;
-    mode      = _spi_mode_0;
+    bit_order = _bo_lsb;
+    mode = _mode_0;
   }
 
   /* ------------------------------------------------------------------------ */
-  static void unactivate() {
-  }
+  static void unactivate() {}
 
   /* ------------------------------------------------------------------------ */
-  static inline void setBitOrder(spi_bit_order_t bo) {
-    bit_order = bo;
-  }
+  static inline void setBitOrder(_bit_order_t bo) { bit_order = bo; }
 
   /* ------------------------------------------------------------------------ */
-  static inline void setMode(spi_mode_t m) {
+  static inline void setMode(_mode_t m) {
     mode = m;
-    if(mode & 0x2) _sck::high();
+    if (mode & 0x2)
+      _sck::high();
   }
 
   /* ------------------------------------------------------------------------ */
-  static inline void setPrescaler(spi_prescaler_t clk) {
-  }
+  static inline void setPrescaler(_prescaler_t clk) {}
 
   /* ------------------------------------------------------------------------ */
   static uint8_t transferByte(uint8_t sb) {
     uint8_t rb = 0;
-    for(uint8_t i = 0; i < 8; ++i) {
-      if(mode & 0x01) _sck::write(!_sck::read());
+    for (uint8_t i = 0; i < 8; ++i) {
+      if (mode & 0x01)
+        _sck::write(!_sck::read());
 
-      if (bit_order == _spi_bo_lsb) {
+      if (bit_order == _bo_lsb) {
         rb |= _miso::read() << i;
         _mosi::write((sb >> i) & 0x1);
       } else {
@@ -75,7 +71,8 @@ public:
         _mosi::write((sb >> (7 - i)) & 0x01);
       }
 
-      if(!(mode & 0x01)) _sck::write(!_sck::read());
+      if (!(mode & 0x01))
+        _sck::write(!_sck::read());
       _sck::write(!_sck::read());
     }
 
@@ -83,9 +80,7 @@ public:
   }
 
   /* ------------------------------------------------------------------------ */
-  static inline void sendByte(uint8_t b) {
-    transferByte(b);
-  }
+  static inline void sendByte(uint8_t b) { transferByte(b); }
 
   /* ------------------------------------------------------------------------ */
   static inline uint8_t receiveByte(void) {
@@ -94,25 +89,23 @@ public:
   }
 
   /* ------------------------------------------------------------------------ */
-  static inline bool isSelected() {
-    return (_ss::read() == LOW);
-  }
+  static inline bool isSelected() { return (_ss::read() == LOW); }
 
   /* ------------------------------------------------------------------------ */
-  static uint8_t available() {
-    return 0;
-  }
+  static uint8_t available() { return 0; }
 
 private:
-  static spi_bit_order_t bit_order;
-  static spi_mode_t      mode;
+  static _bit_order_t bit_order;
+  static _mode_t mode;
 };
 
 /* -------------------------------------------------------------------------- */
-template<typename _sck, typename _miso, typename _mosi, typename _ss, bool slave>
-spi_bit_order_t SWSPI<_sck, _miso, _mosi, _ss, slave>::bit_order;
+template <typename _sck, typename _miso, typename _mosi, typename _ss>
+_bit_order_t SPIInterface<_sck, _miso, _mosi, _ss, _sw_spi>::bit_order;
 
-template<typename _sck, typename _miso, typename _mosi, typename _ss, bool slave>
-spi_mode_t SWSPI<_sck, _miso, _mosi, _ss, slave>::mode;
+template <typename _sck, typename _miso, typename _mosi, typename _ss>
+_mode_t SPIInterface<_sck, _miso, _mosi, _ss, _sw_spi>::mode;
+
+} // spi
 
 #endif // SW_SPI_HH

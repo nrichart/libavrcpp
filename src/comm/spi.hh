@@ -17,11 +17,4 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "common/common.hh"
-
-uint8_t hw_spi_activated = 0;
-
-//SIGNAL(SPI_STC_vect) {
-//  SSPI0::interruptTransfer();
-//}
-
+#include "spi/hw_spi.hh"

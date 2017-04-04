@@ -36,9 +36,9 @@ function(add_avr_firmware target)
   set(LIBAVRC++_SOURCE_FILES
     ${LIBAVRC++_DIR}/scripts/ldd_hack.cpp
     ${LIBAVRC++_DIR}/src/common/common.cc
-    ${LIBAVRC++_DIR}/src/spi/hw_spi.cc
-    ${LIBAVRC++_DIR}/src/twi/twi.cc
-    ${LIBAVRC++_DIR}/src/serial/hw_serial.cc
+    ${LIBAVRC++_DIR}/src/comm/spi/hw_spi.cc
+    ${LIBAVRC++_DIR}/src/comm/twi/twi.cc
+    ${LIBAVRC++_DIR}/src/comm/serial/hw_serial.cc
     ${LIBAVRC++_DIR}/src/main.cc
     ${LIBAVRC++_DIR}/src/components/rtc/rtc.cc
     ${LIBAVRC++_DIR}/src/pins/timer_interrupt.cc
@@ -69,7 +69,8 @@ function(add_avr_firmware target)
   endif()
 
   include_directories(
-    ${LIBAVRC++_DIR}/src)
+    ${LIBAVRC++_DIR}/src
+    ${LIBAVRC++_DIR}/src/comm)
 
   set_target_properties(${target}
     PROPERTIES COMPILE_FLAGS ${_libavrc++_DEFINITIONS}

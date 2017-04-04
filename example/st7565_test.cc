@@ -11,7 +11,7 @@ const  uint8_t logo16_glcd_bmp[] PROGMEM = {
 0x20, 0x3c, 0x3f, 0x3f, 0x1f, 0x19, 0x1f, 0x7b, 0xfb, 0xfe, 0xfe, 0x07, 0x07, 0x07, 0x03, 0x00, };
 
 typedef RGBLed<pin3, pin5, pin6> bck_light;
-typedef gLCD< ST7565<pin4, pin2, bck_light, SPI<pin7> > > lcd;
+typedef gLCD<ST7565<pin4, pin2, bck_light, pin7>> lcd;
 
 
 void setup(void) {

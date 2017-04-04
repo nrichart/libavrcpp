@@ -242,12 +242,14 @@ typedef pinA4 sda;
 /* -------------------------------------------------------------------------- */
 /* Serial                                                                     */
 /* -------------------------------------------------------------------------- */
-#include "serial/hw_serial.hh"
+#include "serial.hh"
 
 typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0;
 
 /* -------------------------------------------------------------------------- */
+
 #include "twi/twi.hh"
-#include "spi/hw_spi.hh"
+#include "spi/spi.hh"
+
 
 #endif // CONF328P_HH

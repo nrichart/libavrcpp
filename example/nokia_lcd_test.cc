@@ -2,7 +2,7 @@
 #include "components/lcd/pcd8544.hh"
 #include "components/lcd/glcd.hh"
 
-typedef gLCD< PCD8544<pin7, pin6, pin5, SPI0> > lcd;
+typedef gLCD<PCD8544<pin7, pin6, pin5>> lcd;
 
 void setup(void) {
   lcd::activate();

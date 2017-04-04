@@ -28,7 +28,7 @@
 #include "twi/twi.hh"
 //#define BMP085_TEST_DATA
 
-template< class twi = TWI<0x77> >
+template<class twi = TWI0<0x77>>
 class BMP085 {
 public:
   enum mode_t {

@@ -204,15 +204,21 @@ typedef Pin<PortB, 3, adc3, oc1b>          pin3;
 typedef Pin<PortB, 4, adc2, oc1b>          pin4;
 typedef Pin<PortB, 5, adc0>                pin5;
 
+/* -- USI ports ------------------------------------------------------------- */
+typedef pin2 usi_sck;
+typedef pin1 usi_do;
+typedef pin0 usi_di;
 /* -- SPI ports ------------------------------------------------------------- */
-/* typedef pin13 sck; */
-/* typedef pin12 miso; */
-/* typedef pin11 mosi; */
-/* typedef pin10 ss; */
-/* /\* -- I2C ports ------------------------------------------------------------- *\/ */
-/* typedef pinA5 scl; */
-/* typedef pinA4 sda; */
+typedef usi_sck sck;
+typedef usi_do miso;
+typedef usi_di mosi;
+/* -- I2C ports ------------------------------------------------------------- */
+typedef usi_sck scl;
+typedef usi_di sda;
 
+
+#define TWI_INTERFACE_TYPE twi::_usi_twi
+#include "twi/twi.hh"
 /* -------------------------------------------------------------------------- */
 /* Serial                                                                     */
 /* -------------------------------------------------------------------------- */

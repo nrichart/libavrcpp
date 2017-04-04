@@ -17,14 +17,22 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __SPI_HH__
-#define __SPI_HH__
+#ifndef SPI_HH
+#define SPI_HH
+
+/* -------------------------------------------------------------------------- */
+#if !defined(SPI_INTERFACE)
+#  define SPI_INTERFACE spi::_hw_spi
+#endif
+
+#include "spi/spi_interface.hh"
+/* -------------------------------------------------------------------------- */
 
 template<typename _sck, typename _miso, typename _mosi, typename _ss,
-	 class HWLayer>
-class SPIInterface : public Communication< HWLayer > {
+         spi::spi_interface_t _interface = spi::_hw_spi>
+class SPI : public spi::SPIInterface<_sck, _miso, _mosi, _ss, _interface> {
 private:
-  typedef Communication< HWLayer > CommLayer;
+  typedef spi::SPIInterface<_sck, _miso, _mosi, _ss, _interface> interface;
 
 public:
   /* ------------------------------------------------------------------------ */
@@ -36,9 +44,12 @@ public:
     /* Set MOSI and SCK output, all others input */
     _mosi::output();
     _sck::output();
+
+    interface::activate();
   }
 
   static inline void select() {
+    interface::select();
     _ss::low();
   }
 
@@ -50,14 +61,14 @@ public:
   template<typename T>
   static inline void send(const T & data) {
     select();
-    CommLayer::send(data);
+    interface::send(data);
     unselect();
   }
 
   template<typename T>
   static inline void send(const T data[], uint8_t size) {
     select();
-    CommLayer::send(data, size);
+    interface::send(data, size);
     unselect();
   }
 
@@ -65,14 +76,14 @@ public:
   template<typename T>
   static inline void receive(T & data) {
     select();
-    CommLayer::receive(data);
+    interface::receive(data);
     unselect();
   }
 
   template<typename T>
   static inline void receive(T data[], uint8_t size) {
     select();
-    CommLayer::receive(data, size);
+    interface::receive(data, size);
     unselect();
   }
 
@@ -80,7 +91,7 @@ public:
   template<typename T>
   static inline T transfer(const T & sdata) {
     select();
-    T rdata = CommLayer::transfer(sdata);;
+    T rdata = interface::transfer(sdata);;
     unselect();
     return rdata;
   }
@@ -88,14 +99,14 @@ public:
   template<typename T>
   static inline void transfer(const T sdata[], T rdata[], uint8_t ssize, uint8_t rsize = 0) {
     select();
-    CommLayer::transfer(sdata, rdata, ssize, rsize);
+    interface::transfer(sdata, rdata, ssize, rsize);
     unselect();
   }
 
   /* ------------------------------------------------------------------------ */
   static void print(const char * str = "") {
     select();
-    CommLayer::print(str);
+    interface::print(str);
     unselect();
   }
 
@@ -103,8 +114,15 @@ public:
   /* ------------------------------------------------------------------------ */
   static void println(const char * str = "") {
     select();
-    CommLayer::print(str);
+    interface::print(str);
     unselect();
   }
 };
+
+/* -------------------------------------------------------------------------- */
+#if !defined(NO_DEFAULT_SPI)
+template <typename _ss = ss>
+using SPI0 = SPI<sck, mosi, mosi, _ss, SPI_INTERFACE>;
+#endif
+
 #endif // __SPI_HH__
