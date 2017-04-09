@@ -176,13 +176,11 @@ public:
 template <typename reg, uint8_t start_bit, uint8_t mask> class bits {
 public:
   static inline void set(typename reg::type val) {
-    reg::sbits<start_bit, mask>(val);
+    reg::template sbits<start_bit, mask>(val);
   }
   static inline typename reg::type get() {
     return ((reg::val() >> start_bit) & mask);
   }
 };
-
-
 
 #endif /* __REGISTERS_HH__ */

@@ -17,6 +17,10 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* -------------------------------------------------------------------------- */
+#include "spi/spi_interface.hh"
+/* -------------------------------------------------------------------------- */
+
 #ifndef SPI_HH
 #define SPI_HH
 
@@ -24,8 +28,6 @@
 #if !defined(SPI_INTERFACE)
 #  define SPI_INTERFACE spi::_hw_spi
 #endif
-
-#include "spi/spi_interface.hh"
 /* -------------------------------------------------------------------------- */
 
 template<typename _sck, typename _miso, typename _mosi, typename _ss,

@@ -1,6 +1,5 @@
 #include <libavrc++.hh>
 
-#include <spi/sw_spi.hh>
 #include <components/rtc/ds3234.hh>
 #include <components/rtc/rtc.hh>
 

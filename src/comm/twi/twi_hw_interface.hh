@@ -215,6 +215,9 @@ template <typename _sda, typename _scl>
 uint8_t TWIInterface<_sda, _scl, _hw_twi>::state;
 
 template <typename _sda, typename _scl>
+uint8_t TWIInterface<_sda, _scl, _hw_twi>::slave;
+
+template <typename _sda, typename _scl>
 uint8_t TWIInterface<_sda, _scl, _hw_twi>::nb_send;
 
 template <typename _sda, typename _scl>

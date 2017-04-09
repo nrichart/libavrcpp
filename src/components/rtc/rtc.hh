@@ -27,10 +27,9 @@
 #ifndef __RTC_HH__
 #define __RTC_HH__
 
-
-#include<stdio.h>
-#include<string.h>
-#include<avr/pgmspace.h>
+#include <stdio.h>
+#include <string.h>
+#include <avr/pgmspace.h>
 
 #define SECONDS_FROM_1970_TO_2000 946684800
 
@@ -54,7 +53,7 @@ public:
     for (this->yOff = 0; ; ++this->yOff) {
       leap = this->yOff % 4 == 0;
       if (days < 365u + leap)
-	break;
+        break;
       days -= 365u + leap;
     }
     for (m = 1; ; ++m) {
