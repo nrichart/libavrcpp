@@ -16,62 +16,104 @@
    You should  have received  a copy  of the GNU  Lesser General  Public License
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
+/* -------------------------------------------------------------------------- */
+#include "common/common.hh"
+/* -------------------------------------------------------------------------- */
 
-#ifndef __ADC_HH__
-#define __ADC_HH__
+#ifndef ADC_HH
+#define ADC_HH
 
-enum adc_prescaler_t {
-  _adc_prescaler_2   = 0x0,
-  _adc_prescaler_4   = 0x2,
-  _adc_prescaler_8   = 0x3,
-  _adc_prescaler_16  = 0x4,
-  _adc_prescaler_32  = 0x5,
-  _adc_prescaler_64  = 0x6,
-  _adc_prescaler_128 = 0x7
+/* -------------------------------------------------------------------------- */
+
+namespace adc {
+enum _prescaler_t {
+  _prescaler_2   = 0x0,
+  _prescaler_4   = 0x2,
+  _prescaler_8   = 0x3,
+  _prescaler_16  = 0x4,
+  _prescaler_32  = 0x5,
+  _prescaler_64  = 0x6,
+  _prescaler_128 = 0x7
 };
 
-enum adc_reference_t {
-  _adc_ref_avref       = 0x0,
-  _adc_ref_avcc        = 0x1,
-  _adc_ref_internal    = 0x3
+enum _reference_t {
+  _ref_avref       = 0x0,
+  _ref_avcc        = 0x1,
+  _ref_internal    = 0x3
 };
+} // adc
+
+namespace adc {
+typedef adcsra::bit<ADSC> adsc;
+typedef adcsra::bit<ADEN> aden;
+typedef adcsra::bit<ADATE> adate;
+typedef adcsra::bit<ADIF> adif;
+typedef adcsra::bit<ADIE> adie;
+
+typedef adcsra::bit<ADPS0> adps0;
+typedef adcsra::bit<ADPS1> adps1;
+typedef adcsra::bit<ADPS2> adps2;
+typedef adcsra::bits<ADPS0, _or<adps0, adps1, adps2>::value> adcps;
+
+typedef admux::bit<REFS0> refs0;
+typedef admux::bit<REFS1> refs1;
+typedef admux::bits<REFS0, _or<refs0, refs1>::value> adcrefs;
+
+typedef admux::bit<ADLAR> adlar;
+
+typedef admux::bit<MUX0> mux0;
+typedef admux::bit<MUX1> mux1;
+typedef admux::bit<MUX2> mux2;
+typedef admux::bit<MUX3> mux3;
+#if defined(MUX4)
+typedef admux::bit<MUX4> mux4;
+typedef admux::bits<MUX0, _or<mux0, mux1, mux2, mux3, mux4>::value> adcmux;
+#else
+typedef admux::bits<MUX0, _or<mux0, mux1, mux2, mux3>::value> adcmux;
+#endif
+#if defined(MUX5)
+typedef adcsrb::bit<MUX5> mux5;
+#endif
+} // adc
 
 /* -------------------------------------------------------------------------- */
 /* Analog to Digital convertion methods                                       */
 /* -------------------------------------------------------------------------- */
-template<uint8_t mux, typename adc_mux = admux,
-         typename adc_ctrl_a = adcsra, typename adc_ctrl_b = adcsrb,
-         typename adc_data = adcw>
+template<uint8_t mux>
 class ADCPort { /* For 10bits resolution a clock between 50 and 200kHz is needed */
 public:
   /// initialize the Analog to digital converter
-  static void init(adc_prescaler_t prescaler = _adc_prescaler_128) {
-    adc_ctrl_a::sbits<ADPS0, 0x03>(prescaler);
+  static void init(adc::_prescaler_t prescaler = adc::_prescaler_128) {
+    adc::adcps::set(prescaler);
     // enable a2d conversions
-    adc_ctrl_a::sbit(ADEN);
+    adc::aden::set();
   }
 
   /// port is a value between 0 and 8
-  static uint16_t read(adc_reference_t ref = _adc_ref_avcc) {
+  static uint16_t read(adc::_reference_t ref = adc::_ref_avcc) {
     // select the reference and the port to read
-    adc_mux::sbits<REFS0, 0x03>(ref);
-    adc_mux::sbits<MUX0, 0x0F>(mux);
+    adc::adcrefs::set(ref);
+    adc::adcmux::set(mux);
 #if defined(MUX5)
-    adc_ctrl_b::sbits<MUX5, 0x01>(mux >> 5);
+    if(mux >> 5) {
+      adc::mux5::set();
+    } else {
+      adc::mux5::clear();
+    }
 #endif
 
     // start the conversion
-    adc_ctrl_a::sbit(ADSC);
+    adc::adsc::set();
     // ADSC is cleared when the conversion finishes
-    adc_ctrl_a::wait_bit_is_clear(ADSC);
+    adc::adsc::wait_is_clear();
 
-    if(adc_mux::getbit(ADLAR))
-      return (adc_data::val() >> 6);
+    if(adc::adlar::get())
+      return (adcw::val() >> 6);
     else
-      return (adc_data::val());
+      return (adcw::val());
   }
 
   enum { type_id = _type_adc };
 };
 
-#endif //__ADC_HH__
+#endif // ADC_HH

@@ -25,7 +25,7 @@
 #ifndef __BMP085_H__
 #define __BMP085_H__
 
-#include "twi/twi.hh"
+#include "twi.hh"
 //#define BMP085_TEST_DATA
 
 template<class twi = TWI0<0x77>>

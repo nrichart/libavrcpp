@@ -128,7 +128,7 @@ typedef reg<0x71> timsk3;
 typedef reg<0x72> timsk4;
 //typedef reg<0x73> timsk5;
 #ifndef _ASSEMBLER_
-typedef reg<0x78, uint16_t> adc;
+typedef reg<0x78, uint16_t> adc_;
 #endif
 typedef reg<0x78, uint16_t> adcw;
 typedef reg<0x78> adcl;
@@ -402,7 +402,7 @@ typedef pin15 sck;
 typedef pin16 mosi;
 typedef pin14 miso;
 
-#include "twi/twi.hh"
-#include "spi/spi.hh"
+#include "twi.hh"
+#include "spi.hh"
 
 #endif // CONF32U4_HH

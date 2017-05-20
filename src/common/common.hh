@@ -18,25 +18,16 @@
 */
 
 /* -------------------------------------------------------------------------- */
-#include <stdint.h>
-#include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
+#include <stdint.h>
 #include <util/delay.h>
-#include <avr/sfr_defs.h>
 /* -------------------------------------------------------------------------- */
 
 struct not_defined;
 
-#ifndef __COMMON_HH__
-#define __COMMON_HH__
-
-// #ifndef cbi
-// auto cbi = [](auto sfr, auto bit) { return (sfr &= ~_BV(bit)); };
-// #endif
-
-// #ifndef sbi
-// auto sbi = [](auto sfr, auto bit) { return (sfr &= ~_BV(bit)); };
-// #endif
+#ifndef COMMON_HH
+#define COMMON_HH
 
 enum : uint8_t { OUTPUT = 0x1, INPUT = 0x0 };
 enum : uint8_t { HIGH = 0x1, LOW = 0x0 };
@@ -49,50 +40,42 @@ enum type_id_t {
   _type_external_interrupt
 };
 
-
 #include "common/unused.hh"
 /* -------------------------------------------------------------------------- */
-template < typename T1, typename T2 >
-    struct is_same {
-    enum { value = false };      // is_same represents a bool.
-  };
+#include "common/type_traits.hh"
+/* -------------------------------------------------------------------------- */
+template <uint8_t type_id_t, typename T, typename = void>
+struct _select_type_helper {
+  using type = unused_type;
+};
 
-  template < typename T >
-    struct is_same<T, T> {
-    enum { value = true };
-  };
+template <uint8_t type_id_t, typename T>
+struct _select_type_helper<type_id_t, T,
+                           std::enable_if_t<T::type_id == type_id_t, T>> {
+  using type = T;
+};
 
-#define min(x, y) ((x) > (y) ? (y) : (x))
-#define max(x, y) ((x) > (y) ? (x) : (y))
-#define swap(a, b) { uint8_t __t = (a); (a) = (b); (b) = __t; }
+template <uint8_t type_id_t, typename... T> struct select_type_helper {
+  using type = unused_type;
+};
+
+template <uint8_t type_id_t, typename T, typename... Ts>
+struct select_type_helper<type_id_t, T, Ts...> {
+  using _type1 = typename _select_type_helper<type_id_t, T>::type;
+  using _type2 = typename select_type_helper<type_id_t, Ts...>::type;
+  using type =
+      std::conditional_t<std::is_same<T, _type1>::value, _type1, _type2>;
+};
+
+template <uint8_t type_id_t, typename... Ts> struct select_type {
+  using type = typename select_type_helper<type_id_t, Ts...>::type;
+};
+
+template <uint8_t type_id_t, typename... Ts>
+using select_type_t = typename select_type<type_id_t, Ts...>::type;
 
 /* -------------------------------------------------------------------------- */
-template<typename T1, typename T2, typename T3, uint8_t type_select,
-         uint8_t type_id_1 = T1::type_id,
-         uint8_t type_id_2 = T2::type_id,
-         uint8_t type_id_3 = T3::type_id>
-struct select_type {
-  typedef unused_type type;
-};
-
-template<typename T1, typename T2, typename T3,
-         uint8_t type_select, uint8_t type_id_2, uint8_t type_id_3>
-struct select_type<T1, T2, T3, type_select, type_select, type_id_2, type_id_3> {
-  typedef T1 type;
-};
-
-template<typename T1, typename T2, typename T3,
-         uint8_t type_select, uint8_t type_id_1, uint8_t type_id_3>
-struct select_type<T1, T2, T3, type_select, type_id_1, type_select, type_id_3> {
-  typedef T2 type;
-};
-
-template<typename T1, typename T2, typename T3,
-         uint8_t type_select, uint8_t type_id_1, uint8_t type_id_2>
-struct select_type<T1, T2, T3, type_select, type_id_1, type_id_2, type_select> {
-  typedef T3 type;
-};
-
 #include "conf/mcu_conf.hh"
+/* -------------------------------------------------------------------------- */
 
-#endif //__COMMON_HH__
+#endif // COMMON_HH

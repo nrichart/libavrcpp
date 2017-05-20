@@ -24,8 +24,8 @@
                                     +-\/-+
 RESET / PCINT14               PC6  1|    |28  PC5 (AI5)  ADC5 / PCINT13 / SCL
   RXD / PCINT16          (D0) PD0  2|    |27  PC4 (AI4)  ADC4 / PCINT12 / SDA
-  TXD / PCINT17	         (D1) PD1  3|    |26  PC3 (AI3)  ADC3 / PCINT11
- INT0 / PCINT18	         (D2) PD2  4|    |25  PC2 (AI2)  ADC2 / PCINT10
+  TXD / PCINT17          (D1) PD1  3|    |26  PC3 (AI3)  ADC3 / PCINT11
+ INT0 / PCINT18          (D2) PD2  4|    |25  PC2 (AI2)  ADC2 / PCINT10
  INT1 / PCINT19 / OC2B  +(D3) PD3  5|    |24  PC1 (AI1)  ADC1 / PCINT9
   XCK / PCINT20 / T0     (D4) PD4  6|    |23  PC0 (AI0)  ADC0 / PCINT8
                               VCC  7|    |22  GND
@@ -43,6 +43,9 @@ XTAL2 / PCINT7  / TOSC2       PB7 10|    |19  PB5 (D13)         PCINT5  / SCK
 /* Registers definitions                                                      */
 /* -------------------------------------------------------------------------- */
 #include "pins/registers.hh"
+/* -------------------------------------------------------------------------- */
+#include <avr/sfr_defs.h>
+/* -------------------------------------------------------------------------- */
 
 typedef reg_io<0x03> pinb;
 typedef reg_io<0x04> ddrb;
@@ -93,7 +96,7 @@ typedef reg<0x6D> pcmsk2;
 typedef reg<0x6E> timsk0;
 typedef reg<0x6F> timsk1;
 typedef reg<0x70> timsk2;
-typedef reg<0x78, uint16_t> adc;
+typedef reg<0x78, uint16_t> adc_;
 typedef reg<0x78, uint16_t> adcw;
 typedef reg<0x78> adcl;
 typedef reg<0x79> adch;
@@ -137,13 +140,11 @@ typedef reg<0xC4> ubrr0l;
 typedef reg<0xC5> ubrr0h;
 typedef reg<0xC6> udr0;
 
-typedef bit<adcsra, ADSC> adsc;
-typedef bit<adcsra, ADEN> aden;
-
 /* -------------------------------------------------------------------------- */
 /* ADC definitions                                                            */
 /* -------------------------------------------------------------------------- */
 #include "pins/adc.hh"
+
 typedef ADCPort<0x00> adc0;
 typedef ADCPort<0x01> adc1;
 typedef ADCPort<0x02> adc2;
@@ -248,8 +249,8 @@ typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0;
 
 /* -------------------------------------------------------------------------- */
 
-#include "twi/twi.hh"
-#include "spi/spi.hh"
+#include "twi.hh"
+#include "spi.hh"
 
 
 #endif // CONF328P_HH
