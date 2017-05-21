@@ -1,5 +1,8 @@
 #include "common/common.hh"
-#include "serial/sw_serial.hh"
+#include "serial/serial_software_interface.hh"
+/* -------------------------------------------------------------------------- */
+
+namespace serial {
 
 /*
  * Adaptation of the NewSoftSerial : Multi-instance software serial library
@@ -47,6 +50,4 @@ const int XMIT_START_ADJUSTMENT = 4;
 
 const uint8_t sizeof_sw_serial_delay_table = 6;
 
-/* -------------------------------------------------------------------------- */
-/* static */
-/* -------------------------------------------------------------------------- */
+}  // serial

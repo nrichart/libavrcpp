@@ -1,18 +1,13 @@
 #include "libavrc++.hh"
 
-
-#include <components/leds/neo_pixel.hh>
-
-typedef NeoPixel<pin13, 60> neo_pixel;
-void setup(void) {
-  neo_pixel::activate();
-
-  for (int i = 0; i < 60; ++i) {
-    neo_pixel::setLEDColor(i, Color<_rgb>(i, i, i));
-  }
+void setup() {
+  pin13::output();
 }
 
-void loop(void) {
-  neo_pixel::display();
+// the loop function runs over and over again forever
+void loop() {
+  pin13::high();
+  _delay_ms(1000);              // wait for a second
+  pin13::low();
+  _delay_ms(1000);              // wait for a second
 }
-

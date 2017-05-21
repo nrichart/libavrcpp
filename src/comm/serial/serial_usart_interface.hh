@@ -16,12 +16,16 @@
    You should  have received  a copy  of the GNU  Lesser General  Public License
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
+/* -------------------------------------------------------------------------- */
+#ifndef SERIAL_USART_INTERFACE_HH
+#define SERIAL_USART_INTERFACE_HH
 
-#ifndef __HW_SERIAL_HH__
-#define __HW_SERIAL_HH__
-
+/* -------------------------------------------------------------------------- */
 #include "common/communication.hh"
 #include "common/queue.hh"
+/* -------------------------------------------------------------------------- */
+
+namespace serial {
 
 #if (RAMEND < 1000)
 #  define UART_RX_BUFFER_SIZE 16
@@ -29,30 +33,30 @@
 #  define UART_RX_BUFFER_SIZE 0
 #endif
 
-
 #define UART_TX_BUFFER_SIZE UART_RX_BUFFER_SIZE
 
 // UCSRnA
-#define RXCn  7
-#define TXCn  6
+#define RXCn 7
+#define TXCn 6
 #define UDREn 5
 
-#define UPEn  2
-#define U2Xn  1
+#define UPEn 2
+#define U2Xn 1
 
 // UCSRnB
 #define RXCIEn 7
 #define TXCIEn 6
 #define UDRIEn 5
-#define RXENn  4
-#define TXENn  3
+#define RXENn 4
+#define TXENn 3
 
-template<typename ucsrna, typename ucsrnb, typename ucsrnc,
-         typename ubrrnh, typename ubrrnl, typename udr, uint8_t id = 0>
-class HWSerial : public Communication< HWSerial<ucsrna, ucsrnb, ucsrnc,
-                                                ubrrnh, ubrrnl, udr, id> > {
+template <typename ucsrna, typename ucsrnb, typename ucsrnc, typename ubrrnh,
+          typename ubrrnl, typename udr>
+class SerialUSARTInterface
+  : public Communication<
+  SerialUSARTInterface<ucsrna, ucsrnb, ucsrnc, ubrrnh, ubrrnl, udr>> {
 private:
-  typedef HWSerial<ucsrna, ucsrnb, ucsrnc, ubrrnh, ubrrnl, udr, id> my_type;
+  typedef SerialUSARTInterface<ucsrna, ucsrnb, ucsrnc, ubrrnh, ubrrnl, udr> my_type;
 
   static uint16_t computeUBRR(uint32_t baudrate, bool use_u2x) {
     if (use_u2x) {
@@ -62,6 +66,7 @@ private:
     }
   }
 
+  static void ext_activate();
 public:
   /* ------------------------------------------------------------------------ */
   static void activate(uint32_t baudrate, uint8_t baudrate_tolreance = 2) {
@@ -80,13 +85,14 @@ public:
     ucsrna::set(0);
     ubrr = my_type::computeUBRR(baudrate, use_u2x);
 
-    if(ubrr > 4095 && use_u2x) {
+    if (ubrr > 4095 && use_u2x) {
       use_u2x = false;
       ubrr = my_type::computeUBRR(baudrate, use_u2x);
     }
 
     // assign the baud_setting, a.k.a. ubrr (USART Baud Rate Register)
-    if(use_u2x) ucsrna::sbit(U2Xn);
+    if (use_u2x)
+      ucsrna::sbit(U2Xn);
     ubrrnh::set(ubrr >> 8);
     ubrrnl::set(ubrr & 0xFF);
 
@@ -95,7 +101,7 @@ public:
     // activate emitter
     ucsrnb::sbit(RXENn);
 
-    // activate interruption on receive
+// activate interruption on receive
 #if UART_RX_BUFFER_SIZE > 0
     ucsrnb::sbit(RXCIEn);
 #endif
@@ -103,6 +109,8 @@ public:
 #if UART_TX_BUFFER_SIZE > 0
     ucsrnb::cbit(UDRIEn);
 #endif
+
+    ext_activate();
   }
 
   /* ------------------------------------------------------------------------ */
@@ -122,11 +130,13 @@ public:
   /* ------------------------------------------------------------------------ */
   static uint8_t receiveByte() {
 #if UART_RX_BUFFER_SIZE > 0
-    if(receive_buffer.isEmpty()) return 0;
-    else return receive_buffer.pop();
+    if (receive_buffer.isEmpty())
+      return 0;
+    else
+      return receive_buffer.pop();
 #else
     uint8_t b = udr::val();
-    if(ucsrna::is_clear(UPEn)) {
+    if (ucsrna::is_clear(UPEn)) {
       return b;
     }
 #endif
@@ -135,7 +145,8 @@ public:
   /* ------------------------------------------------------------------------ */
   static void sendByte(uint8_t b) {
 #if UART_TX_BUFFER_SIZE > 0
-    do { } while(send_buffer.isFull());
+    do {
+    } while (send_buffer.isFull());
 
     send_buffer.push(b);
 
@@ -156,21 +167,21 @@ public:
 #endif
   }
 
-  /* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 #if UART_RX_BUFFER_SIZE > 0
   static inline void storeReceive() {
     uint8_t b = udr::val();
-    if(ucsrna::is_clear(UPEn)) {
+    if (ucsrna::is_clear(UPEn)) {
       // if no parity error
       receive_buffer.push(b);
     }
   }
 #endif
 
-  /* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 #if UART_TX_BUFFER_SIZE > 0
   static inline void transmitSend() {
-    if(send_buffer.isEmpty()) {
+    if (send_buffer.isEmpty()) {
       ucsrnb::cbit(UDRIEn);
     } else {
       uint8_t b = send_buffer.pop();
@@ -189,17 +200,19 @@ private:
 };
 
 #if UART_RX_BUFFER_SIZE > 0
-template<typename ucsrna, typename ucsrnb, typename ucsrnc,
-         typename ubrrnh, typename ubrrnl, typename udr, uint8_t id>
-Queue<uint8_t, uint8_t, UART_RX_BUFFER_SIZE> HWSerial<ucsrna, ucsrnb, ucsrnc,
-						      ubrrnh, ubrrnl, udr, id>::receive_buffer;
+template <typename ucsrna, typename ucsrnb, typename ucsrnc, typename ubrrnh,
+          typename ubrrnl, typename udr>
+Queue<uint8_t, uint8_t, UART_RX_BUFFER_SIZE>
+SerialUSARTInterface<ucsrna, ucsrnb, ucsrnc, ubrrnh, ubrrnl, udr>::receive_buffer;
 #endif
 
 #if UART_TX_BUFFER_SIZE > 0
-template<typename ucsrna, typename ucsrnb, typename ucsrnc,
-         typename ubrrnh, typename ubrrnl, typename udr, uint8_t id>
-Queue<uint8_t, uint8_t, UART_TX_BUFFER_SIZE> HWSerial<ucsrna, ucsrnb, ucsrnc,
-						      ubrrnh, ubrrnl, udr, id>::send_buffer;
+template <typename ucsrna, typename ucsrnb, typename ucsrnc, typename ubrrnh,
+          typename ubrrnl, typename udr>
+Queue<uint8_t, uint8_t, UART_TX_BUFFER_SIZE>
+SerialUSARTInterface<ucsrna, ucsrnb, ucsrnc, ubrrnh, ubrrnl, udr>::send_buffer;
 #endif
 
-#endif // __HW_SERIAL_HH__
+}  // serial
+
+#endif /* SERIAL_USART_INTERFACE_HH */

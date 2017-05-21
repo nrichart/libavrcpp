@@ -9,18 +9,21 @@
  * -- Integration in libavrc++ by netWorms
  */
 
-#include "common/common.hh"
-#include "common/queue.hh"
-
-#include <avr/pgmspace.h>
-
-#ifndef __SW_SERIAL_HH__
-#define __SW_SERIAL_HH__
-
+/* -------------------------------------------------------------------------- */
+#ifndef SERIAL_SOFTWARE_INTERFACE_HH
+#define SERIAL_SOFTWARE_INTERFACE_HH
 
 /* -------------------------------------------------------------------------- */
-typedef struct _DELAY_TABLE
-{
+#include "common/common.hh"
+#include "common/queue.hh"
+/* -------------------------------------------------------------------------- */
+#include <avr/pgmspace.h>
+/* -------------------------------------------------------------------------- */
+
+namespace serial {
+
+/* -------------------------------------------------------------------------- */
+typedef struct _DELAY_TABLE {
   long baud;
   unsigned short rx_delay_centering;
   unsigned short rx_delay_intrabit;
@@ -33,14 +36,14 @@ extern const uint8_t sizeof_sw_serial_delay_table;
 extern const int XMIT_START_ADJUSTMENT;
 /* -------------------------------------------------------------------------- */
 #if (RAMEND < 1000)
-  #define RX_BUFFER_SIZE 16
+#define RX_BUFFER_SIZE 16
 #else
-  #define RX_BUFFER_SIZE 64
+#define RX_BUFFER_SIZE 64
 #endif
 
 /* -------------------------------------------------------------------------- */
-template<typename tx, typename rx, uint8_t size = RX_BUFFER_SIZE>
-class SwSerial {
+template <typename tx, typename rx, uint8_t size = RX_BUFFER_SIZE>
+class SerialSoftwareInterface {
 public:
   static void activate(unsigned long baudrate, bool inverse_logic = false);
 
@@ -56,26 +59,22 @@ public:
   static inline void sendByte(uint8_t b);
 
   /* ------------------------------------------------------------------------ */
-  static inline uint8_t available() {
-    return receive_buffer.used();
-  }
+  static inline uint8_t available() { return receive_buffer.used(); }
 
   /* ------------------------------------------------------------------------ */
   static inline void storeReceive();
 
 private:
   static inline void tunedDelay(uint16_t delay) {
-    uint8_t tmp=0;
+    uint8_t tmp = 0;
     asm volatile("sbiw    %0, 0x01 \n\t"
                  "ldi %1, 0xFF \n\t"
                  "cpi %A0, 0xFF \n\t"
                  "cpc %B0, %1 \n\t"
                  "brne .-10 \n\t"
-                 : "+r" (delay), "+a" (tmp)
-                 : "0" (delay)
-                 );
+                 : "+r"(delay), "+a"(tmp)
+                 : "0"(delay));
   }
-
 
 private:
   static unsigned short rx_delay_centering;
@@ -87,9 +86,8 @@ private:
   static bool buffer_overflow;
   static bool external_on;
 
-  static Queue<uint8_t, size> receive_buffer;
+  static Queue<uint8_t, uint8_t, size> receive_buffer;
 };
-
 
 /* -------------------------------------------------------------------------- */
 /* Template Code                                                              */
@@ -97,17 +95,17 @@ private:
 
 /* -------------------------------------------------------------------------- */
 // template<typename tx, typename rx, uint8_t size>
-// void SwSerial<tx, rx, size>::activate() {
+// void SerialSoftwareInterface<tx, rx, size>::activate() {
 //   uint8_t oldSREG = SREG;
 //   cli();
 //   active = this;
 //   SREG = oldSREG;
 // }
 
-
 /* -------------------------------------------------------------------------- */
-template<typename tx, typename rx, uint8_t size>
-void SwSerial<tx, rx, size>::activate(unsigned long baudrate, bool inv_logic) {
+template <typename tx, typename rx, uint8_t size>
+void SerialSoftwareInterface<tx, rx, size>::activate(unsigned long baudrate,
+                                                     bool inv_logic) {
   inverse_logic = inv_logic;
   buffer_overflow = false;
 
@@ -115,17 +113,21 @@ void SwSerial<tx, rx, size>::activate(unsigned long baudrate, bool inv_logic) {
   tx::high();
 
   rx::input();
-  if (!inverse_logic) rx::high();  // pullup for normal logic!
+  if (!inverse_logic)
+    rx::high(); // pullup for normal logic!
 
   rx_delay_centering = rx_delay_intrabit = rx_delay_stopbit = tx_delay = 0;
 
-  for (unsigned i=0; i < sizeof_sw_serial_delay_table; ++i) {
-    long baud = pgm_read_dword(&sw_serial_delay_table[i].baud);
+  for (unsigned i = 0; i < sizeof_sw_serial_delay_table; ++i) {
+    unsigned long baud = pgm_read_dword(&sw_serial_delay_table[i].baud);
     if (baud == baudrate) {
-      rx_delay_centering = pgm_read_word(&sw_serial_delay_table[i].rx_delay_centering);
-      rx_delay_intrabit  = pgm_read_word(&sw_serial_delay_table[i].rx_delay_intrabit);
-      rx_delay_stopbit   = pgm_read_word(&sw_serial_delay_table[i].rx_delay_stopbit);
-      tx_delay           = pgm_read_word(&sw_serial_delay_table[i].tx_delay);
+      rx_delay_centering =
+          pgm_read_word(&sw_serial_delay_table[i].rx_delay_centering);
+      rx_delay_intrabit =
+          pgm_read_word(&sw_serial_delay_table[i].rx_delay_intrabit);
+      rx_delay_stopbit =
+          pgm_read_word(&sw_serial_delay_table[i].rx_delay_stopbit);
+      tx_delay = pgm_read_word(&sw_serial_delay_table[i].tx_delay);
       break;
     }
   }
@@ -141,7 +143,7 @@ void SwSerial<tx, rx, size>::activate(unsigned long baudrate, bool inv_logic) {
 
   // Set up RX interrupts, but only if we have a valid RX baud rate
   if (rx_delay_stopbit) {
-    //rx::PCIntOn();
+    // rx::PCIntOn();
     tunedDelay(tx_delay); // if we were low this establishes the end
   }
 }
@@ -150,8 +152,8 @@ void SwSerial<tx, rx, size>::activate(unsigned long baudrate, bool inv_logic) {
 //
 // The receive routine called by the interrupt handler
 //
-template<typename tx, typename rx, uint8_t size>
-void SwSerial<tx, rx, size>::storeReceive() {
+template <typename tx, typename rx, uint8_t size>
+void SerialSoftwareInterface<tx, rx, size>::storeReceive() {
   uint8_t d = 0;
 
   // If RX line is high, then we don't see any start bit
@@ -187,13 +189,13 @@ void SwSerial<tx, rx, size>::storeReceive() {
 }
 
 /* -------------------------------------------------------------------------- */
-template<typename tx, typename rx, uint8_t size>
-void SwSerial<tx, rx, size>::sendByte(uint8_t b) {
+template <typename tx, typename rx, uint8_t size>
+void SerialSoftwareInterface<tx, rx, size>::sendByte(uint8_t b) {
   if (tx_delay == 0)
     return;
 
   uint8_t oldSREG = SREG;
-  cli();  // turn off interrupts for a clean txmit
+  cli(); // turn off interrupts for a clean txmit
 
   // Write the start bit
   tx::write(inverse_logic ? HIGH : LOW);
@@ -204,7 +206,7 @@ void SwSerial<tx, rx, size>::sendByte(uint8_t b) {
   if (inverse_logic) {
     for (uint8_t mask = 0x01; mask; mask <<= 1) {
       if (b & mask) // choose bit
-        tx::low(); // send 1
+        tx::low();  // send 1
       else
         tx::high(); // send 0
 
@@ -227,47 +229,39 @@ void SwSerial<tx, rx, size>::sendByte(uint8_t b) {
 }
 
 /* -------------------------------------------------------------------------- */
-template<typename tx, typename rx, uint8_t size>
-bool SwSerial<tx, rx, size>::inverse_logic = false;
+template <typename tx, typename rx, uint8_t size>
+bool SerialSoftwareInterface<tx, rx, size>::inverse_logic = false;
 
-template<typename tx, typename rx, uint8_t size>
-bool SwSerial<tx, rx, size>::buffer_overflow = false;
+template <typename tx, typename rx, uint8_t size>
+bool SerialSoftwareInterface<tx, rx, size>::buffer_overflow = false;
 
-template<typename tx, typename rx, uint8_t size>
-bool SwSerial<tx, rx, size>::external_on = false;
+template <typename tx, typename rx, uint8_t size>
+bool SerialSoftwareInterface<tx, rx, size>::external_on = false;
 
-template<typename tx, typename rx, uint8_t size>
-unsigned short SwSerial<tx, rx, size>::rx_delay_centering = 0;
+template <typename tx, typename rx, uint8_t size>
+unsigned short SerialSoftwareInterface<tx, rx, size>::rx_delay_centering = 0;
 
-template<typename tx, typename rx, uint8_t size>
-unsigned short SwSerial<tx, rx, size>::rx_delay_intrabit = 0;
+template <typename tx, typename rx, uint8_t size>
+unsigned short SerialSoftwareInterface<tx, rx, size>::rx_delay_intrabit = 0;
 
-template<typename tx, typename rx, uint8_t size>
-unsigned short SwSerial<tx, rx, size>::rx_delay_stopbit = 0;
+template <typename tx, typename rx, uint8_t size>
+unsigned short SerialSoftwareInterface<tx, rx, size>::rx_delay_stopbit = 0;
 
-template<typename tx, typename rx, uint8_t size>
-unsigned short SwSerial<tx, rx, size>::tx_delay = 0;
+template <typename tx, typename rx, uint8_t size>
+unsigned short SerialSoftwareInterface<tx, rx, size>::tx_delay = 0;
 
-template<typename tx, typename rx, uint8_t size>
-Queue<uint8_t, size> SwSerial<tx, rx, size>::receive_buffer;
-
+template <typename tx, typename rx, uint8_t size>
+Queue<uint8_t, uint8_t, size> SerialSoftwareInterface<tx, rx, size>::receive_buffer;
 
 /* -------------------------------------------------------------------------- */
-#define DeclareInteruptReceive(tx, rx)          \
-  DeclareInteruptRecieve_##rx(tx)
+#define DeclareInteruptReceive(tx, rx) DeclareInteruptRecieve_##rx(tx)
 
-#define DeclareInteruptReceive_pin2(tx)                                 \
-  ISR(INT0_vect)                                                        \
-  {                                                                     \
-    SwSerial<tx, pin2>::storeReceive();                                 \
-  }
+#define DeclareInteruptReceive_pin2(tx)                                        \
+  ISR(INT0_vect) { SerialSoftwareInterface<tx, pin2>::storeReceive(); }
 
-#define DeclareInteruptReceive_pin3(tx)                                 \
-  ISR(INT0_vect)                                                        \
-  {                                                                     \
-    SwSerial<tx, pin3>::storeReceive();                                 \
-  }
+#define DeclareInteruptReceive_pin3(tx)                                        \
+  ISR(INT0_vect) { SwSerial<tx, pin3>::storeReceive(); }
 
+} // serial
 
-
-#endif /* __SW_SERIAL_HH__ */
+#endif /* SERIAL_SOFTWARE_INTERFACE_HH */

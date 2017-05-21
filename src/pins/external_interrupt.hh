@@ -17,8 +17,8 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EXT_INTERRUPT_HH
-#define EXT_INTERRUPT_HH
+#ifndef EXTERNAL_INTERRUPT_HH
+#define EXTERNAL_INTERRUPT_HH
 
 /* -------------------------------------------------------------------------- */
 /* External interrupt                                                         */
@@ -31,7 +31,7 @@ enum external_trigger_t {
 };
 
 template<typename msk_bit, typename control_bits>
-struct ExtInterrupt {
+struct ExternalInterrupt {
   static inline void IntOn(external_trigger_t mode) {
     control_bits::set(mode);
     msk_bit::set();
@@ -44,20 +44,20 @@ struct ExtInterrupt {
   enum { type_id = _type_external_interrupt };
 };
 
-#if defined(EXT_INT0)
-typedef ExtInterrupt<int0, isc0x> exint0;
+#if defined(EXTERNAL_INTERRUPT0)
+typedef ExternalInterrupt<int0, isc0x> exint0;
 #endif
-#if defined(EXT_INT1)
-typedef ExtInterrupt<int1, isc1x> exint1;
+#if defined(EXTERNAL_INTERRUPT1)
+typedef ExternalInterrupt<int1, isc1x> exint1;
 #endif
-#if defined(EXT_INT2)
-typedef ExtInterrupt<int2, isc2x> exint2;
+#if defined(EXTERNAL_INTERRUPT2)
+typedef ExternalInterrupt<int2, isc2x> exint2;
 #endif
-#if defined(EXT_INT3)
-typedef ExtInterrupt<int3, isc3x> exint3;
+#if defined(EXTERNAL_INTERRUPT3)
+typedef ExternalInterrupt<int3, isc3x> exint3;
 #endif
-#if defined(EXT_INT6)
-typedef ExtInterrupt<int6, isc6x> exint6;
+#if defined(EXTERNAL_INTERRUPT6)
+typedef ExternalInterrupt<int6, isc6x> exint6;
 #endif
 
-#endif /* EXT_INTERRUPT_HH */
+#endif /* EXTERNAL_INTERRUPT_HH */

@@ -18,8 +18,10 @@
 */
 /* -------------------------------------------------------------------------- */
 #include "common/common.hh"
+#include "pins/pin_change_interrupt.hh"
+#include "pins/port.hh"
 #include "pins/timer.hh"
-#include "pins/adc.hh"
+
 /* -------------------------------------------------------------------------- */
 
 #ifndef PIN_HH
@@ -31,20 +33,23 @@
 /* Analog Read/Write Helper                                                   */
 /* -------------------------------------------------------------------------- */
 namespace pin_helpers_ {
-template<typename pin, typename T>
-struct analog_writer_ {
+template <typename pin, typename T> struct analog_writer_ {
   static inline void write(uint8_t val) {
-    if(val > 127) pin::high();
-    else pin::low();
+    if (val > 127)
+      pin::high();
+    else
+      pin::low();
   }
 };
 
-template<typename pin, typename timer, timer_channel_t channel>
+template <typename pin, typename timer, timer_channel_t channel>
 struct analog_writer_<pin, TimerChannel<timer, channel>> {
   using _timer = TimerChannel<timer, channel>;
   static inline void write(uint8_t val) {
-    if (val == 0) pin::low();
-    else if (val == 255) pin::high();
+    if (val == 0)
+      pin::low();
+    else if (val == 255)
+      pin::high();
     else {
       _timer::setMode(_timer_clear);
       _timer::setOC(val);
@@ -52,34 +57,31 @@ struct analog_writer_<pin, TimerChannel<timer, channel>> {
   }
 };
 
-template<typename pin, typename T>
-struct analog_reader_ {
+template <typename pin, typename T> struct analog_reader_ {
   static inline uint8_t read(adc::_reference_t) {
-    if(pin::read() == HIGH) return uint8_t(1024);
-    else return 0;
+    if (pin::read() == HIGH)
+      return uint8_t(1024);
+    else
+      return 0;
   }
 };
 
-template<typename pin>
-template<uint8_t mux>
+template <typename pin>
+template <uint8_t mux>
 struct analog_reader_<pin, ADCPort<mux>> {
   using _adc = ADCPort<mux>;
-  static inline uint16_t read(adc::_reference_t ref) {
-    return _adc::read(ref);
-  }
+  static inline uint16_t read(adc::_reference_t ref) { return _adc::read(ref); }
 };
 
-template<typename pin, typename ...T>
-struct analog_write {
+template <typename pin, typename... T> struct analog_write {
   static inline void write(uint8_t val) {
     analog_writer_<pin, select_type_t<_type_timer_channel, T...>>::write(val);
   }
 };
 
-template<typename pin, typename ...T>
-struct analog_read {
+template <typename pin, typename... T> struct analog_read {
   static inline void write(uint8_t val) {
-   return analog_reader_<pin, select_type_t<_type_adc, T...>>::write(val);
+    return analog_reader_<pin, select_type_t<_type_adc, T...>>::write(val);
   }
 };
 }
@@ -87,17 +89,20 @@ struct analog_read {
 /* -------------------------------------------------------------------------- */
 /* Pin                                                                        */
 /* -------------------------------------------------------------------------- */
-template<typename Port, uint8_t _bit, typename ...T>
-class Pin : Port {//, PCIntPin<typename Port::pcint, _bit> {
+template <typename Port, uint8_t _bit, typename... T>
+class Pin : Port,
+            public std::enable_if_t<
+  !std::is_same<typename Port::pcint, unused_type>::value,
+  typename Port::pcint::template pin<_bit>> {
 protected:
   typedef Pin<Port, _bit, T...> pin;
 
 public:
   static inline void output() { Port::output(_bit); }
-  static inline void input()  { Port::input(_bit);  }
+  static inline void input() { Port::input(_bit); }
 
   static inline void high() { Port::high(_bit); }
-  static inline void low()  { Port::low(_bit);  }
+  static inline void low() { Port::low(_bit); }
 
   static inline uint8_t read() { return Port::read(_bit); }
   static inline void write(uint8_t value) { Port::write(value, _bit); }
@@ -110,7 +115,7 @@ public:
     pin_helpers_::analog_write<pin, T...>::write(val);
   }
 
-  enum { bit = _bit  };
+  enum { bit = _bit };
   typedef typename Port::port port;
 };
 

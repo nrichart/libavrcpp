@@ -19,9 +19,6 @@
 
 #include "common/common.hh"
 
-#ifndef __TIMER_INTERRUPT_HH__
-#define __TIMER_INTERRUPT_HH__
-
 #if defined(TIMER0)
 ISR(TIMER0_OVF_vect) {
   Timer0::onOVF();
@@ -51,5 +48,3 @@ ISR(TIMER4_OVF_vect) {
   Timer4::onOVF();
 }
 #endif
-
-#endif /* __TIMER_INTERRUPT_HH__ */

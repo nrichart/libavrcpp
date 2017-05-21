@@ -4,6 +4,28 @@ macro(_libavrcpp_load_config config)
     message(FATAL_ERROR "The config ${config} does not exists")
   endif()
   include(${LIBAVRC++_DIR}/configs/${config}.cmake)
+
+  set(_board_name ${LIBAVRC++_NAME})
+  if(DEFINED LIBAVRC++_VARIANTS)
+    if(DEFINED _libavrc++_VARIANT)
+      set(_board_name "${_board_name} - ${LIBAVRC++_${_libavrc++_VARIANT}}")
+      get_directory_property(_variables VARIABLES)
+      foreach(_variable ${_variables})
+        if(_variable MATCHES "LIBAVRC\\+\\+_${_libavrc++_VARIANT}_(.*)")
+          set(LIBAVRC++_${CMAKE_MATCH_1} ${${_variable}})
+          unset(LIBAVRC++_${_variant})
+        endif()
+      endforeach()
+    else()
+      set(_msg "You must choose a variant:")
+      foreach(_variant ${LIBAVRC++_VARIANTS})
+        set(_msg "${_msg}\n - ${LIBAVRC++_${_variant}}")
+      endforeach()
+      message(FATAL_ERROR ${_msg})
+    endif()
+    unset(LIBAVRC++_VARIANTS)
+  endif()
+  message("Loaded configuration for board: ${_board_name}")
 endmacro()
 
 #=============================================================================#
@@ -16,8 +38,17 @@ function(libavrcpp_list_configs)
   message(STATUS "List of available configs:")
   foreach(_config ${_configs})
     string(REPLACE ".cmake" "" _config_name "${_config}")
-    _libavrcpp_load_config(${_config_name})
+
+    include(${LIBAVRC++_DIR}/configs/${_config_name}.cmake)
+
     message(STATUS "  ${_config_name}: ${LIBAVRC++_NAME}")
+    if(DEFINED LIBAVRC++_VARIANTS)
+      foreach(_variant ${LIBAVRC++_VARIANTS})
+        message(STATUS "      ${_variant}: ${LIBAVRC++_${_variant}}")
+        unset(LIBAVRC++_${_variant})
+      endforeach()
+      unset(LIBAVRC++_VARIANTS)
+    endif()
   endforeach()
 endfunction()
 
@@ -25,7 +56,7 @@ include(CMakeParseArguments)
 
 #=============================================================================#
 function(add_avr_firmware target)
-  cmake_parse_arguments(_libavrc++ "" "PORT;CONFIG" "" ${ARGN})
+  cmake_parse_arguments(_libavrc++ "" "PORT;CONFIG;VARIANT" "" ${ARGN})
 
   if(NOT _libavrc++_CONFIG)
     message(FATAL_ERROR "You should specify a CONFIG for libavr_add_firmware")
@@ -33,15 +64,10 @@ function(add_avr_firmware target)
 
   _libavrcpp_load_config(${_libavrc++_CONFIG})
 
-  set(LIBAVRC++_SOURCE_FILES
+  set(_libavrc++_srcs
     ${LIBAVRC++_DIR}/scripts/ldd_hack.cpp
     ${LIBAVRC++_DIR}/src/common/common.cc
-    ${LIBAVRC++_DIR}/src/comm/spi/hw_spi.cc
-    ${LIBAVRC++_DIR}/src/comm/twi/twi.cc
-    ${LIBAVRC++_DIR}/src/comm/serial/hw_serial.cc
     ${LIBAVRC++_DIR}/src/main.cc
-    ${LIBAVRC++_DIR}/src/components/rtc/rtc.cc
-    ${LIBAVRC++_DIR}/src/pins/timer_interrupt.cc
     )
 
   if(_libavrc++_PORT)
@@ -53,14 +79,20 @@ function(add_avr_firmware target)
     endif()
   endif()
 
-  add_executable(${target}
-    ${_libavrc++_UNPARSED_ARGUMENTS} ${LIBAVRC++_SOURCE_FILES})
+  add_library(_${target} STATIC
+    ${_libavrc++_UNPARSED_ARGUMENTS})
 
-  get_target_property(sources ${target} SOURCES)
-  foreach(s ${sources})
-    get_source_file_property(dep ${s} OBJECT_DEPENDS)
-    message("- ${s} - ${dep}")
-  endforeach()
+  get_target_property(_objs _${target} RESSOURCE)
+  message("_${target} ${_objs}")
+
+  add_custom_command(TARGET _${target} POST_BUILD
+    COMMAND ${LIBAVRC++_DIR}/scripts/nm.sh ${AVR_NM} ${_name} lib_${target}.a ${CMAKE_BINARY_DIR}/_${target}_depends.cc ${LIBAVRC++_DIR}
+    BYPRODUCTS ${CMAKE_BINARY_DIR}/_${target}_depends.cc
+    )
+
+  add_executable(${target} ${_libavrc++_srcs} ${CMAKE_BINARY_DIR}/_${target}_depends.cc)
+  target_link_libraries(${target} PRIVATE _${target})
+
 
   set(_libavrc++_DEFINITIONS "-mmcu=${LIBAVRC++_BUILD_MCU} -DF_CPU=${LIBAVRC++_BUILD_F_CPU} -DMCU=${LIBAVRC++_BUILD_MCU}")
 
@@ -72,11 +104,12 @@ function(add_avr_firmware target)
     ${LIBAVRC++_DIR}/src
     ${LIBAVRC++_DIR}/src/comm)
 
-  set_target_properties(${target}
+  set_target_properties(${target} _${target}
     PROPERTIES COMPILE_FLAGS ${_libavrc++_DEFINITIONS}
     LINK_FLAGS "-mmcu=${LIBAVRC++_BUILD_MCU}"
-    OUTPUT_NAME "${target}.elf"
     )
+  set_target_properties(${target}
+    PROPERTIES OUTPUT_NAME "${target}.elf")
 
   if(CMAKE_OBJCOPY AND AVRDUDE)
     if(AVR_SIZE)
@@ -130,6 +163,7 @@ endfunction()
 
 #=============================================================================#
 find_program(AVR_SIZE       "avr-size")
+find_program(AVR_NM         "avr-nm")
 find_program(AVRDUDE        "avrdude")
 find_program(CMAKE_OBJCOPY  "avr-objcopy")
 

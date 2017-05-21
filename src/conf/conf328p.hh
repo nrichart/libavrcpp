@@ -178,23 +178,23 @@ typedef bit<eimsk, INT1> int1;
 typedef bits<eicra, ISC00, 0x3> isc0x;
 typedef bits<eicra, ISC10, 0x3> isc1x;
 
-#define EXT_INT0
-#define EXT_INT1
+#define EXTERNAL_INTERRUPT0
+#define EXTERNAL_INTERRUPT1
 
-#include "pins/ext_interrupt.hh"
+#include "pins/external_interrupt.hh"
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
 /* -------------------------------------------------------------------------- */
-#include "pins/pc_interrupt.hh"
+#include "pins/pin_change_interrupt.hh"
 
 typedef bit<pcicr, PCIE0> pcie0;
 typedef bit<pcicr, PCIE1> pcie1;
 typedef bit<pcicr, PCIE2> pcie2;
 
-typedef PCIntPort<pcmsk0, pcie0> pcint0;
-typedef PCIntPort<pcmsk1, pcie1> pcint1;
-typedef PCIntPort<pcmsk2, pcie2> pcint2;
+typedef PinChangeInterruptPort<pcmsk0, pcie0> pcint0;
+typedef PinChangeInterruptPort<pcmsk1, pcie1> pcint1;
+typedef PinChangeInterruptPort<pcmsk2, pcie2> pcint2;
 
 /* -------------------------------------------------------------------------- */
 /* Port definitions                                                           */
@@ -236,21 +236,19 @@ typedef pin13 sck;
 typedef pin12 miso;
 typedef pin11 mosi;
 typedef pin10 ss;
+
+#include "spi.hh"
+
 /* -- I2C ports ------------------------------------------------------------- */
 typedef pinA5 scl;
 typedef pinA4 sda;
 
-/* -------------------------------------------------------------------------- */
-/* Serial                                                                     */
-/* -------------------------------------------------------------------------- */
-#include "serial.hh"
-
-typedef HWSerial<ucsr0a, ucsr0b, ucsr0c, ubrr0h, ubrr0l, udr0> Serial0;
-
-/* -------------------------------------------------------------------------- */
-
 #include "twi.hh"
-#include "spi.hh"
 
+/* -- Serial ---------------------------------------------------------------- */
+#define SERIAL_INTERFACE_0 serial::_usart_serial
+
+#include "serial.hh"
+/* -------------------------------------------------------------------------- */
 
 #endif // CONF328P_HH

@@ -1,11 +1,7 @@
-#include "sw_serial.hh"
-#include "common.hh"
-#include "communication.hh"
-#include "hw_serial.hh"
+#include "libavrc++.hh"
 
-typedef SwSerial<pin3, pin2> SSerial;
+typedef Serial<pin3, pin2> SSerial;
 //typedef HWSerial SSerial;
-
 
 bool state;
 
@@ -13,7 +9,7 @@ ISR(INT0_vect)
 {
   state ^= true;
   pin13::write(state);
-  SwSerial<pin3, pin2>::storeReceive();
+  SSerial::storeReceive();
 }
 
 // ISR(PCINT2_vect) {
@@ -24,14 +20,14 @@ ISR(INT0_vect)
 
 void setup(void) {
   SSerial::activate(9600);
-  HWSerial::activate(9600);
+  Serial0::activate(9600);
   pin13::output();
 
-  pin2::PCIntOn();
+  pin2::pinChangeInterruptOn();
 }
 
 void loop(void) {
-  static int i = 0;
+  //static int i = 0;
   pin13::high();
   //Communication<SSerial>::printf("%d ", Communication<SSerial>::available());
   //delay(500);

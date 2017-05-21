@@ -25,30 +25,36 @@
 #ifndef PC_INTERRUPT_HH
 #define PC_INTERRUPT_HH
 
+/* -------------------------------------------------------------------------- */
+template<typename pcintport, uint8_t pin_num>
+struct PinChangeInterruptPin {
+  static void pinChangeInterruptOn() {
+    pcintport::pinChangeInterruptOn(pin_num);
+  }
+  static void pinChangeInterruptOff() {
+    pcintport::pinChangeInterruptOff(pin_num);
+  }
+};
+
+/* -------------------------------------------------------------------------- */
 template<typename pcmskx, typename pcie_bit>
-class PCIntPort {
+class PinChangeInterruptPort {
 public:
-  static inline void PCIntOn(uint8_t pin) {
+  static inline void pinChangeInterruptOn(uint8_t pin) {
     pcie_bit::set();
     pcmskx::sbit(pin);
   }
 
-  static inline void PCIntOff(uint8_t pin) {
+  static inline void pinChangeInterruptOff(uint8_t pin) {
     pcmskx::cbit(pin);
   }
+
+  template <uint8_t pin>
+  using pin = PinChangeInterruptPin<PinChangeInterruptPort<pcmskx, pcie_bit>, pin>;
 };
 
-template<typename pcintport, uint8_t pin_num>
-struct PCIntPin {
-  static int PCIntOn() {
-    return pcintport::PCIntOn(pin_num);
-  }
-  static int PCIntOff() {
-    return pcintport::PCIntOff(pin_num);
-  }
-};
-
+/* -------------------------------------------------------------------------- */
 template<uint8_t pin_num>
-class PCIntPin<unused_type, pin_num> { };
+class PinChangeInterruptPin<unused_type, pin_num> { };
 
 #endif /* PC_INTERRUPT_HH */

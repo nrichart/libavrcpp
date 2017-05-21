@@ -165,7 +165,7 @@ public:
 /* -------------------------------------------------------------------------- */
 #if !defined(NO_DEFAULT_TWI)
 template<uint8_t addr, uint8_t slave_addr = 0x00>
-using TWI0 = TWI<addr, scl, sda, slave_addr, TWI_INTERFACE>;
+using TWI0 = TWI<addr, sda, scl, slave_addr, TWI_INTERFACE>;
 #endif
 /* -------------------------------------------------------------------------- */
 

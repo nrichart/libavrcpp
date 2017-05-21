@@ -17,38 +17,22 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <avr/interrupt.h>
+/* -------------------------------------------------------------------------- */
 #include "common/common.hh"
-#include "hw_serial.hh"
+#include "twi.hh"
+/* -------------------------------------------------------------------------- */
+#include <avr/interrupt.h>
+/* -------------------------------------------------------------------------- */
 
-#if UART_RX_BUFFER_SIZE > 0
-#if defined(USART_RX_vect)
-SIGNAL(USART_RX_vect)
-{
-  Serial0::storeReceive();
-}
-#endif
+typedef twi::TWIInterface<sda, scl, twi::_hw_twi> TWIm;
+/* -------------------------------------------------------------------------- */
+template <typename _sda, typename _scl>
+void twi::TWIInterface<_sda, _scl, twi::_hw_twi>::ext_activate() {}
 
-#if defined(USART1_RX_vect)
-SIGNAL(USART1_RX_vect)
-{
-  Serial1::storeReceive();
-}
-#endif
-#endif
+template void twi::TWIInterface<sda, scl, twi::_hw_twi>::ext_activate();
+/* -------------------------------------------------------------------------- */
 
-#if UART_TX_BUFFER_SIZE > 0
-#if defined(USART_UDRE_vect)
-ISR(USART_UDRE_vect)
-{
-  Serial0::transmitSend();
+ISR(TWI_vect) {
+  TWIm::TWI_vect();
+  reti();
 }
-#endif
-
-#if defined(USART1_UDRE_vect)
-ISR(USART1_UDRE_vect)
-{
-  Serial1::transmitSend();
-}
-#endif
-#endif

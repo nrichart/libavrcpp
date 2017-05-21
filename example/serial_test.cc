@@ -1,7 +1,5 @@
 #include <libavrc++.hh>
 
-
-
 void setup() {
   Serial0::activate(9600);
   Serial0::println("Hello World");

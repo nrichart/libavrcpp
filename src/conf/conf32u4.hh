@@ -315,22 +315,20 @@ typedef  bits<eicra, ISC20, 0x3> isc2x;
 typedef  bits<eicra, ISC30, 0x3> isc3x;
 typedef  bits<eicrb, ISC60, 0x3> isc6x;
 
-#define EXT_INT0
-#define EXT_INT1
-#define EXT_INT2
-#define EXT_INT3
-#define EXT_INT6
+#define EXTERNAL_INTERRUPT0
+#define EXTERNAL_INTERRUPT1
+#define EXTERNAL_INTERRUPT2
+#define EXTERNAL_INTERRUPT3
+#define EXTERNAL_INTERRUPT6
 
-#include "pins/ext_interrupt.hh"
+#include "pins/external_interrupt.hh"
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
 /* -------------------------------------------------------------------------- */
-
-#include "pins/pc_interrupt.hh"
+#include "pins/pin_change_interrupt.hh"
 
 typedef bit<pcicr, PCIE0> pcie0;
-
 typedef PCIntPort<pcmsk0, pcie0> pcint0;
 
 /* -------------------------------------------------------------------------- */
@@ -380,29 +378,23 @@ typedef pin9                       pinA9;
 typedef pin10                      pinA10;
 typedef pin12                      pinA11;
 
-/* -------------------------------------------------------------------------- */
-/* Serial                                                                     */
-/* -------------------------------------------------------------------------- */
-#include "serial/hw_serial.hh"
-
-typedef HWSerial<ucsr1a, ucsr1b, ucsr1c, ubrr1h, ubrr1l, udr1> Serial1;
-typedef Serial1 Serial0; /// \todo code the usb interface
-
-/* -------------------------------------------------------------------------- */
-/* I2C                                                                        */
-/* -------------------------------------------------------------------------- */
+/* -- I2C ------------------------------------------------------------------- */
 typedef pin3 scl;
 typedef pin2 sda;
 
-/* -------------------------------------------------------------------------- */
-/* SPI                                                                        */
-/* -------------------------------------------------------------------------- */
+#include "twi.hh"
+/* -- SPI ------------------------------------------------------------------- */
 typedef pin17 ss;
 typedef pin15 sck;
 typedef pin16 mosi;
 typedef pin14 miso;
 
-#include "twi.hh"
 #include "spi.hh"
+
+/* -- Serial ---------------------------------------------------------------- */
+#define SERIAL_INTERFACE_1 serial::_usart_serial
+
+#include "serial.hh"
+/* -------------------------------------------------------------------------- */
 
 #endif // CONF32U4_HH

@@ -128,6 +128,9 @@ class TWIInterface<_sda, _scl, _hw_twi> :
     public Communication<TWIInterface<_sda, _scl, _hw_twi>> {
   typedef Communication<TWIInterface<_sda, _scl, _hw_twi>> CommLayer;
 
+private:
+  static void ext_activate();
+
 public:
   static void activate(uint8_t addr, uint8_t slave_addr, bool _slave = false) {
     // set pull-up resistors
@@ -144,6 +147,8 @@ public:
     receive_buffer.flush();
 
     twcr::set(twi::action::_activate);
+
+    ext_activate();
   }
 
   static void deactivate(uint8_t addr, bool _slave = false) {

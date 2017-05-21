@@ -24,6 +24,8 @@
 #  include "conf/conf32u4.hh"
 #elif defined(__AVR_ATmega328P__)
 #  include "conf/conf328p.hh"
+#elif defined(__AVR_ATtiny85__)
+#  include "conf/conftn85.hh"
 #endif
 
 #endif // MCU_CONF_HH
