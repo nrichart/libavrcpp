@@ -40,7 +40,7 @@
 
 typedef reg_io<0x03> adcsrb;
 #ifndef __ASSEMBLER__
-typedef reg_io<0x04, uint16_t> adc;
+typedef reg_io<0x04, uint16_t> _adc;
 #endif
 typedef reg_io<0x04, uint16_t> adcw;
 typedef reg_io<0x04> adcl;
@@ -63,9 +63,9 @@ typedef reg_io<0x17> ddrb;
 typedef reg_io<0x18> portb;
 /* Reserved [0x19..0x1B] */
 /* EEPROM Control Register EECR */
-typedef reg_io<0x1C, uint8> eecr;
+typedef reg_io<0x1C, uint8_t> eecr;
 /* EEPROM Data Register */
-typedef reg_io<0x1D, uint8> eedr;
+typedef reg_io<0x1D, uint8_t> eedr;
 /* EEPROM Address Register */
 typedef reg_io<0x1E, uint16_t> eear;
 typedef reg_io<0x1E> eearl;
@@ -130,15 +130,15 @@ typedef bit<timsk, TOIE1> toie1;
 template<timer_channel_t channel>
 class TimerChannelTimyx5 {
 public:
-  typedef typename timer_prescaler_t4_t prescaler_t;
+  typedef timer_prescaler_t4_t prescaler_t;
 
   static inline void setPrescaler(prescaler_t prescaler)
   { tccr1::sbits<CS10, 0xF>(prescaler); }
 
   static inline void setMode(timer_mode_t mode) {
     switch(channel) {
-    case _timer_channel_a: tccr1::sbits<COM1A0, 0x3>(val);
-    case _timer_channel_b: gtccr::sbits<COM1B0, 0x3>(val);
+    case _timer_channel_a: tccr1::sbits<COM1A0, 0x3>(mode);
+    case _timer_channel_b: gtccr::sbits<COM1B0, 0x3>(mode);
     }
   }
 
@@ -159,31 +159,31 @@ private:
   static user_ovf_t user_ovf;
 };
 
-template<timer_channel_t channel>
-user_ovf_t TimerChannelTimyx5<channel>::user_ovf = NULL;
+// template<timer_channel_t channel>
+// user_ovf_t TimerChannelTimyx5<channel>::user_ovf;
 
 typedef TimerChannelTimyx5<_timer_channel_a> oc1a;
 typedef TimerChannelTimyx5<_timer_channel_b> oc1b;
 
-typedef OutputCompare<gtccr, ocr1a, ocr1b>
+typedef OutputCompare<gtccr, ocr1a, ocr1b> oc1;
 
 /* -------------------------------------------------------------------------- */
 /* External Interrupt                                                         */
 /* -------------------------------------------------------------------------- */
-typedef bit<gimsk, INTO> int0;
+typedef bit<gimsk, INT0> int0;
 typedef bits<mcucr, ISC00, 0x3> isc0x;
 
-#define EXT_INT0
+#define EXTERNAL_INTERRUPT0
 
-#include "pins/ext_interrupt.hh"
+#include "pins/external_interrupt.hh"
 
 /* -------------------------------------------------------------------------- */
 /* Pin change interrupt                                                       */
 /* -------------------------------------------------------------------------- */
-#include "pins/pc_interrupt.hh"
+#include "pins/pin_change_interrupt.hh"
 
 typedef bit<gimsk, PCIE> pcie;
-typedef PCIntPort<pcmsk, pcie> pcint0;
+typedef PinChangeInterruptPort<pcmsk, pcie> pcint0;
 
 /* -------------------------------------------------------------------------- */
 /* Port definitions                                                           */
@@ -197,7 +197,7 @@ typedef Port<pinb, ddrb, portb, pcint0> PortB;
 /* -------------------------------------------------------------------------- */
 #include "pins/pin.hh"
 
-typedef Pin<PortB, 0, oc0a, oc1a, extint0> pin0;
+typedef Pin<PortB, 0, oc0a, oc1a, exint0> pin0;
 typedef Pin<PortB, 1, oc0b, oc1a>          pin1;
 typedef Pin<PortB, 2, adc1>                pin2;
 typedef Pin<PortB, 3, adc3, oc1b>          pin3;
@@ -217,7 +217,7 @@ typedef usi_sck scl;
 typedef usi_di sda;
 
 
-#define TWI_INTERFACE_TYPE twi::_usi_twi
+#define TWI_INTERFACE twi::_usi_twi
 #include "twi.hh"
 
 /* -------------------------------------------------------------------------- */

@@ -18,42 +18,30 @@
 */
 
 /* -------------------------------------------------------------------------- */
-#include "common/common.hh"
-/* -------------------------------------------------------------------------- */
-
 #ifndef TWI_INTERFACE_HH
 #define TWI_INTERFACE_HH
 
-namespace twi {
-
-enum _stop_t { _non_stop = 0x00, _stop = 0x01 };
-
 /* -------------------------------------------------------------------------- */
-namespace clock {
-enum _prescaler_t : uint8_t {
-  _clk_1 = 0x00,
-  _clk_4 = 0x01,
-  _clk_16 = 0x02,
-  _clk_64 = 0x03
-};
-} // clock
+#include "common/common.hh"
+#include "twi/twi.hh"
+/* -------------------------------------------------------------------------- */
 
-namespace sla {
-enum : uint8_t { _write = 0, _read = 1 };
-}
+namespace twi {
 
 /* -------------------------------------------------------------------------- */
 template <typename _sda, typename _scl, twi_interface_t interface>
-class TWIInterface : public Communication<TWIInterface<_sda, _scl, interface>> {
-};
-
-/* -------------------------------------------------------------------------- */
+class TWIInterface { };
 
 } // namespace twi
 
 /* -------------------------------------------------------------------------- */
-#include "twi/twi_hw_interface.hh"
+#if defined(USI)
 #include "twi/twi_usi_interface.hh"
+#endif
+
+#if defined(TWAR)
+#include "twi/twi_hw_interface.hh"
+#endif
 /* -------------------------------------------------------------------------- */
 
 #endif /* TWI_INTERFACE_HH */

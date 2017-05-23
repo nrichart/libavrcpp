@@ -17,12 +17,14 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TWI_HH__
-#define __TWI_HH__
+#ifndef TWI_HH
+#define TWI_HH
 
 /* -------------------------------------------------------------------------- */
-#include <util/twi.h>
+#include "common/common.hh"
+/* -------------------------------------------------------------------------- */
 #include <avr/interrupt.h>
+#include <util/twi.h>
 /* -------------------------------------------------------------------------- */
 
 #if !defined(TWI_RECEIVE_BUFFER_SIZE)
@@ -39,14 +41,32 @@
 
 /* -------------------------------------------------------------------------- */
 namespace twi {
-enum twi_interface_t {
+
+enum twi_interface_t : uint8_t {
   _usi_twi,
   _hw_twi
 };
+
+enum stop_t { _non_stop = 0x00, _stop = 0x01 };
+
+/* -------------------------------------------------------------------------- */
+namespace clock {
+enum _prescaler_t : uint8_t {
+  _clk_1 = 0x00,
+  _clk_4 = 0x01,
+  _clk_16 = 0x02,
+  _clk_64 = 0x03
+};
+} // clock
+
+namespace sla {
+enum : uint8_t { _write = 0, _read = 1 };
 }
 
+} // twi
+
 #if !defined(TWI_INTERFACE)
-#  define TWI_INTERFACE twi::_hw_twi
+#define TWI_INTERFACE twi::_hw_twi
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -99,18 +119,18 @@ public:
   }
 
   /* ------------------------------------------------------------------------ */
-  static inline void sendTo(twi::_stop_t s = twi::_stop) {
-    interface::_sendTo(addr, s);
+  static inline void sendTo(twi::stop_t s = twi::_stop) {
+    interface::sendTo(addr, s);
   }
 
   /* ------------------------------------------------------------------------ */
-  static inline void receiveFrom(uint8_t size, twi::_stop_t s = twi::_stop) {
-    interface::_receiveFrom(addr, size, s);
+  static inline void receiveFrom(uint8_t size, twi::stop_t s = twi::_stop) {
+    interface::receiveFrom(addr, size, s);
   }
 
   /* ------------------------------------------------------------------------ */
   template <typename T>
-  static inline void send(const T &data, twi::_stop_t s = twi::_stop) {
+  static inline void send(const T &data, twi::stop_t s = twi::_stop) {
     // pack the data
     interface::send(data);
     // send them
@@ -119,7 +139,7 @@ public:
 
   template <typename T>
   static inline void send(const T data[], uint8_t size,
-                          twi::_stop_t s = twi::_stop) {
+                          twi::stop_t s = twi::_stop) {
     // pack the data
     interface::send(data, size);
     // send them
@@ -128,7 +148,7 @@ public:
 
   /* ------------------------------------------------------------------------ */
   template <typename T>
-  static inline void receive(T &data, twi::_stop_t s = twi::_stop) {
+  static inline void receive(T &data, twi::stop_t s = twi::_stop) {
     // get the data
     receiveFrom(sizeof(T), s);
     // unpack them
@@ -137,7 +157,7 @@ public:
 
   template <typename T>
   static inline void receive(T data[], uint8_t size,
-                             twi::_stop_t s = twi::_stop) {
+                             twi::stop_t s = twi::_stop) {
     // get the data
     receiveFrom(size * sizeof(T), s);
     // unpack them
@@ -146,7 +166,7 @@ public:
 
   /* ------------------------------------------------------------------------ */
   template <typename T>
-  static inline T transfer(const T &sdata, twi::_stop_t s = twi::_stop) {
+  static inline T transfer(const T &sdata, twi::stop_t s = twi::_stop) {
     send(sdata, twi::_non_stop);
     T rdata;
     receive(rdata, s);
@@ -156,17 +176,16 @@ public:
   /* ------------------------------------------------------------------------ */
   template <typename T>
   static inline void transfer(const T sdata[], T rdata[], uint8_t ssize,
-                              uint8_t rsize, twi::_stop_t s = twi::_stop) {
+                              uint8_t rsize, twi::stop_t s = twi::_stop) {
     send(sdata, ssize, twi::_non_stop);
     receive(rdata, rsize, s);
   }
 };
-
 /* -------------------------------------------------------------------------- */
 #if !defined(NO_DEFAULT_TWI)
-template<uint8_t addr, uint8_t slave_addr = 0x00>
+template <uint8_t addr, uint8_t slave_addr = 0x00>
 using TWI0 = TWI<addr, sda, scl, slave_addr, TWI_INTERFACE>;
 #endif
 /* -------------------------------------------------------------------------- */
 
-#endif //__TWI_HH__
+#endif // TWI_HH

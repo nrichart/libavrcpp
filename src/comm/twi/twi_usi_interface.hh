@@ -16,28 +16,47 @@
    You should  have received  a copy  of the GNU  Lesser General  Public License
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-/* -------------------------------------------------------------------------- */
-#include "twi/twi_interface.hh"
 /* -------------------------------------------------------------------------- */
 
 #ifndef TWI_USI_INTERFACE_HH
 #define TWI_USI_INTERFACE_HH
 
+/* -------------------------------------------------------------------------- */
+#include "common/common.hh"
+#include "common/communication.hh"
+#include "common/queue.hh"
+#include "twi/twi_interface.hh"
+/* -------------------------------------------------------------------------- */
+
 namespace twi {
 
 template <typename _sda, typename _scl>
 class TWIInterface<_sda, _scl, _usi_twi>
-    : public Communication<TWIInterface<_sda, _scl, _usi_twi>> {
-
-  typedef Communication<TWIInterface<_sda, _scl, _usi_twi>> CommLayer;
+  : public Communication<TWIInterface<_sda, _scl, _usi_twi>> {
+private:
+  typedef TWIInterface<_sda, _scl, _usi_twi> my_type;
+  typedef Communication<my_type> CommLayer;
 
 public:
   static void activate(uint8_t addr, uint8_t slave_addr, bool _slave = false) {}
+  static void deactivate(uint8_t addr, bool _slave = false) {}
+
+  static inline void setPrescaler(clock::_prescaler_t prescaler,
+                                  uint32_t freq) {}
+
+  static inline void sendByte(uint8_t) {}
+  static inline uint8_t receiveByte() { return 0; }
+  static inline uint8_t transferByte(uint8_t) { return 0; }
+
+  template <typename T> static inline void send(const T &) {}
+  template <typename T> static inline void send(const T[], uint8_t) {}
+  template <typename T> static inline void receive(T &) {}
+  template <typename T> static inline void receive(T[], uint8_t) {}
+  static inline void sendTo(uint8_t, stop_t = _stop) {}
+  static inline void receiveFrom(uint8_t, uint8_t, stop_t = _stop) {}
 };
 
 /* -------------------------------------------------------------------------- */
-
 
 } // namespace twi
 

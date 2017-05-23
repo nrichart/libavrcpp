@@ -58,6 +58,7 @@
 /* Registers definitions                                                      */
 /* -------------------------------------------------------------------------- */
 #include "pins/registers.hh"
+
 typedef reg_io<0x03> pinb;
 typedef reg_io<0x04> ddrb;
 typedef reg_io<0x05> portb;
@@ -309,6 +310,7 @@ typedef  bit<eimsk, INT1> int1;
 typedef  bit<eimsk, INT2> int2;
 typedef  bit<eimsk, INT3> int3;
 typedef  bit<eimsk, INT6> int6;
+
 typedef  bits<eicra, ISC00, 0x3> isc0x;
 typedef  bits<eicra, ISC10, 0x3> isc1x;
 typedef  bits<eicra, ISC20, 0x3> isc2x;

@@ -6,7 +6,8 @@ libavrcpp_list_configs()
 
 cmake_minimum_required(VERSION 2.6)
 
-add_avr_firmware(blinky CONFIG arduino_pro VARIANT 16MHz_5V_328p  PORT /dev/ttyUSB0
+#add_avr_firmware(blinky CONFIG arduino_pro VARIANT 16MHz_5V_328p  PORT /dev/ttyUSB
+add_avr_firmware(blinky CONFIG trinket_3v PORT /dev/ttyUSB0
   blink_leds.cc
   )
 

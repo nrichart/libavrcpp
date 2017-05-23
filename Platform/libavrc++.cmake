@@ -152,67 +152,75 @@ function(add_avr_firmware target)
       set(_libavrc++_upload_depends ${target}_hex)
     endif()
 
-    add_custom_target(${target}_upload
-      COMMAND ${AVRDUDE} -C${LIBAVRC++_DIR}/scripts/avrdude.conf -P${LIBAVRC++_PORT} -b${LIBAVRC++_UPLOAD_SPEED} -c${LIBAVRC++_UPLOAD_PROTOCOL} -p${LIBAVRC++_BUILD_MCU} -D -Uflash:w:${CMAKE_CURRENT_BINARY_DIR}/${target}.hex:i -q -q
-      DEPENDS ${_libavrc++_upload_depends}
-      COMMENT "Uploading ${target}.hex to \"${LIBAVRC++_NAME} (${LIBAVRC++_BUILD_MCU})\" using programmer ${LIBAVRC++_UPLOAD_PROTOCOL} on port ${LIBAVRC++_PORT}:${LIBAVRC++_UPLOAD_SPEED}"
-      )
+    if("${LIBAVRC++_UPLOAD_PROTOCOL}" STREQUAL "usbtiny")
+      add_custom_target(${target}_upload
+        COMMAND ${AVRDUDE} -C${LIBAVRC++_DIR}/scripts/avrdude.conf -c${LIBAVRC++_UPLOAD_PROTOCOL} -p${LIBAVRC++_BUILD_MCU} -Uflash:w:${CMAKE_CURRENT_BINARY_DIR}/${target}.hex:i -v
+        DEPENDS ${_libavrc++_upload_depends}
+        COMMENT "Uploading ${target}.hex to \"${LIBAVRC++_NAME} (${LIBAVRC++_BUILD_MCU})\" using programmer ${LIBAVRC++_UPLOAD_PROTOCOL} on port ${LIBAVRC++_PORT}:${LIBAVRC++_UPLOAD_SPEED}"
+        )
+    else()
+      add_custom_target(${target}_upload
+        COMMAND ${AVRDUDE} -C${LIBAVRC++_DIR}/scripts/avrdude.conf -P${LIBAVRC++_PORT} -b${LIBAVRC++_UPLOAD_SPEED} -c${LIBAVRC++_UPLOAD_PROTOCOL} -p${LIBAVRC++_BUILD_MCU} -D -Uflash:w:${CMAKE_CURRENT_BINARY_DIR}/${target}.hex:i -q -q
+        DEPENDS ${_libavrc++_upload_depends}
+        COMMENT "Uploading ${target}.hex to \"${LIBAVRC++_NAME} (${LIBAVRC++_BUILD_MCU})\" using programmer ${LIBAVRC++_UPLOAD_PROTOCOL}"
+        )
+    endif()
   endif()
 endfunction()
 
 
-#=============================================================================#
-find_program(AVR_SIZE       "avr-size")
-find_program(AVR_NM         "avr-nm")
-find_program(AVRDUDE        "avrdude")
-find_program(CMAKE_OBJCOPY  "avr-objcopy")
+  #=============================================================================#
+  find_program(AVR_SIZE       "avr-size")
+  find_program(AVR_NM         "avr-nm")
+  find_program(AVRDUDE        "avrdude")
+  find_program(CMAKE_OBJCOPY  "avr-objcopy")
 
-mark_as_advanced(AVR_SIZE AVRDUDE)
+  mark_as_advanced(AVR_SIZE AVRDUDE)
 
-#=============================================================================#
-#                              C Flags
-#=============================================================================#
-set(LIBAVRC++_C_FLAGS "-mcall-prologues -ffunction-sections -fdata-sections")
-set(CMAKE_C_FLAGS                "-Os -Wall   ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
-set(CMAKE_C_FLAGS_DEBUG          "-g          ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
-set(CMAKE_C_FLAGS_MINSIZEREL     "-DNDEBUG    ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
-set(CMAKE_C_FLAGS_RELEASE        "-DNDEBUG -w ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g       -w ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
+  #=============================================================================#
+  #                              C Flags
+  #=============================================================================#
+  set(LIBAVRC++_C_FLAGS "-mcall-prologues -ffunction-sections -fdata-sections")
+  set(CMAKE_C_FLAGS                "-Os -Wall   ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
+  set(CMAKE_C_FLAGS_DEBUG          "-g          ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
+  set(CMAKE_C_FLAGS_MINSIZEREL     "-DNDEBUG    ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
+  set(CMAKE_C_FLAGS_RELEASE        "-DNDEBUG -w ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g       -w ${LIBAVRC++_C_FLAGS}" CACHE STRING "")
 
-#=============================================================================#
-#                             C++ Flags
-#=============================================================================#
-set(LIBAVRC++_CXX_FLAGS "${LIBAVRC++_C_FLAGS} -fno-exceptions")
-set(CMAKE_CXX_FLAGS                "-Os -Wall ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
-set(CMAKE_CXX_FLAGS_DEBUG          "-g        ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG  ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
-set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG  ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g        ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
+  #=============================================================================#
+  #                             C++ Flags
+  #=============================================================================#
+  set(LIBAVRC++_CXX_FLAGS "${LIBAVRC++_C_FLAGS} -fno-exceptions")
+  set(CMAKE_CXX_FLAGS                "-Os -Wall ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
+  set(CMAKE_CXX_FLAGS_DEBUG          "-g        ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
+  set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG  ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
+  set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG  ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g        ${LIBAVRC++_CXX_FLAGS}" CACHE STRING "")
 
-#=============================================================================#
-#                       Executable Linker Flags                               #
-#=============================================================================#
-set(LIBAVRC++_LINKER_FLAGS "-Wl,--gc-sections")
-set(CMAKE_EXE_LINKER_FLAGS                "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG          "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL     "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE        "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  #=============================================================================#
+  #                       Executable Linker Flags                               #
+  #=============================================================================#
+  set(LIBAVRC++_LINKER_FLAGS "-Wl,--gc-sections")
+  set(CMAKE_EXE_LINKER_FLAGS                "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG          "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL     "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE        "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
 
-#=============================================================================#
-#=============================================================================#
-#                       Shared Lbrary Linker Flags                            #
-#=============================================================================#
-set(CMAKE_SHARED_LINKER_FLAGS                "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_SHARED_LINKER_FLAGS_DEBUG          "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL     "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_SHARED_LINKER_FLAGS_RELEASE        "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  #=============================================================================#
+  #=============================================================================#
+  #                       Shared Lbrary Linker Flags                            #
+  #=============================================================================#
+  set(CMAKE_SHARED_LINKER_FLAGS                "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG          "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL     "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_SHARED_LINKER_FLAGS_RELEASE        "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
 
-set(CMAKE_MODULE_LINKER_FLAGS                "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_MODULE_LINKER_FLAGS_DEBUG          "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL     "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_MODULE_LINKER_FLAGS_RELEASE        "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_MODULE_LINKER_FLAGS                "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_MODULE_LINKER_FLAGS_DEBUG          "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL     "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_MODULE_LINKER_FLAGS_RELEASE        "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
+  set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${LIBAVRC++_LINKER_FLAGS}" CACHE STRING "")
 
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+  set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")

@@ -17,56 +17,18 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* -------------------------------------------------------------------------- */
-#include "twi/twi_interface.hh"
-#include "common/common.hh"
-/* -------------------------------------------------------------------------- */
-
 #ifndef TWI_HW_INTERFACE_HH
 #define TWI_HW_INTERFACE_HH
 
+/* -------------------------------------------------------------------------- */
+#include "common/common.hh"
+#include "common/communication.hh"
+#include "common/queue.hh"
+#include "twi/twi_interface.hh"
+/* -------------------------------------------------------------------------- */
+
 namespace twi {
-/* -------------------------------------------------------------------------- */
-typedef twcr::bit<0> twie;
-typedef twcr::bit<2> twen;
-typedef twcr::bit<3> twwc;
-typedef twcr::bit<4> twsto;
-typedef twcr::bit<5> twsta;
-typedef twcr::bit<6> twea;
-typedef twcr::bit<7> twint;
-/* -------------------------------------------------------------------------- */
-typedef twsr::bit<0> twps0;
-typedef twsr::bit<1> twps1;
-typedef twsr::bits<2, 0x3> twps;
-typedef twsr::bit<3> tws3;
-typedef twsr::bit<4> tws4;
-typedef twsr::bit<5> tws5;
-typedef twsr::bit<6> tws6;
-typedef twsr::bit<7> tws7;
-typedef twsr::bits<2, 0x1F> tws;
-/* -------------------------------------------------------------------------- */
-typedef twar::bit<0> twgce;
-typedef twar::bit<1> twa0;
-typedef twar::bit<2> twa1;
-typedef twar::bit<3> twa2;
-typedef twar::bit<4> twa3;
-typedef twar::bit<5> twa4;
-typedef twar::bit<6> twa5;
-typedef twar::bit<7> twa6;
-typedef twar::bits<1, 0x7F> twa;
 
-namespace mask {
-enum : uint8_t {
-  _activate = _or<twint, twsta, twsto, twea, twen, twie>::value,
-  _deactivate = _or<twea, twie>::value,
-
-  _comm = _or<twint, twsta, twsto>::value,
-  _comm_ack = _or<twint, twsta, twsto, twea>::value,
-  _comm_ack_slave = _or<twint, twsto, twea>::value
-};
-} // mask
-
-namespace state {
 enum state_t {
   _ready = 0x00,
   _write = 0x01,
@@ -77,10 +39,8 @@ enum state_t {
   _send_stop = 0x40,
   _repeat_start = 0x80
 };
-} // state
 
-namespace status {
-enum _status_t : uint8_t {
+enum status_t : uint8_t {
   _start = 0x08,
   _rep_start = 0x10,
   _mt_sla_ack = 0x18,
@@ -110,29 +70,69 @@ enum _status_t : uint8_t {
   _no_info = 0xF8,
   _bus_error = 0x00
 };
-} // status
 
-namespace action {
-enum : uint8_t {
-  _start = _or<twint, twsta>::value,
-  _clear_int = twint::value,
-  _stop = _or<twint, twsto>::value,
-  _activate = _or<twea, twen, twie>::value,
-  _nack = twint::value,
-  _ack = _or<twint, twea>::value,
-};
-} // twcr
-
+/* -------------------------------------------------------------------------- */
 template <typename _sda, typename _scl>
-class TWIInterface<_sda, _scl, _hw_twi> :
-    public Communication<TWIInterface<_sda, _scl, _hw_twi>> {
-  typedef Communication<TWIInterface<_sda, _scl, _hw_twi>> CommLayer;
+class TWIInterface<_sda, _scl, _hw_twi>
+  : public Communication<TWIInterface<_sda, _scl, _hw_twi>> {
+private:
+  typedef TWIInterface<_sda, _scl, _hw_twi> my_type;
+  typedef Communication<my_type> CommLayer;
 
 private:
   static void ext_activate();
 
+  typedef twcr::bit<0> twie;
+  typedef twcr::bit<2> twen;
+  typedef twcr::bit<3> twwc;
+  typedef twcr::bit<4> twsto;
+  typedef twcr::bit<5> twsta;
+  typedef twcr::bit<6> twea;
+  typedef twcr::bit<7> twint;
+  /* --------------------------------------------------------------------------
+   */
+  typedef twsr::bit<0> twps0;
+  typedef twsr::bit<1> twps1;
+  typedef twsr::bits<2, 0x3> twps;
+  typedef twsr::bit<3> tws3;
+  typedef twsr::bit<4> tws4;
+  typedef twsr::bit<5> tws5;
+  typedef twsr::bit<6> tws6;
+  typedef twsr::bit<7> tws7;
+  typedef twsr::bits<2, 0x1F> tws;
+  /* --------------------------------------------------------------------------
+   */
+  typedef twar::bit<0> twgce;
+  typedef twar::bit<1> twa0;
+  typedef twar::bit<2> twa1;
+  typedef twar::bit<3> twa2;
+  typedef twar::bit<4> twa3;
+  typedef twar::bit<5> twa4;
+  typedef twar::bit<6> twa5;
+  typedef twar::bit<7> twa6;
+  typedef twar::bits<1, 0x7F> twa;
+
+  enum mask_t : uint8_t {
+    //    _activate = _or<twint, twsta, twsto, twea, twen, twie>::value,
+    _deactivate = _or<twea, twie>::value,
+
+    _comm = _or<twint, twsta, twsto>::value,
+    _comm_ack = _or<twint, twsta, twsto, twea>::value,
+    _comm_ack_slave = _or<twint, twsto, twea>::value
+  };
+
+  enum action_t : uint8_t {
+    _start_condition = _or<twint, twsta>::value,
+    _clear_int = twint::value,
+    _stop_condition = _or<twint, twsto>::value,
+    _activate = _or<twea, twen, twie>::value,
+    _nack = twint::value,
+    _ack = _or<twint, twea>::value,
+  };
+
 public:
   static void activate(uint8_t addr, uint8_t slave_addr, bool _slave = false) {
+
     // set pull-up resistors
     _sda::high();
     _scl::high();
@@ -140,25 +140,25 @@ public:
     slave = _slave;
 
     // set the slave address
-    twi::twa::set(slave_addr);
+    twa::set(slave_addr);
 
-    state = twi::state::_ready;
+    state = _ready;
     send_buffer.flush();
     receive_buffer.flush();
 
-    twcr::set(twi::action::_activate);
+    twcr::set(_activate);
 
     ext_activate();
   }
 
   static void deactivate(uint8_t addr, bool _slave = false) {
-    twcr::sbits<0, twi::mask::_deactivate>(0);
+    twcr::sbits<0, _deactivate>(0);
   }
 
   /* ------------------------------------------------------------------------ */
-  static inline void setPrescaler(twi::clock::_prescaler_t prescaler,
+  static inline void setPrescaler(clock::_prescaler_t prescaler,
                                   uint32_t freq) {
-    twi::twps::set(prescaler);
+    twps::set(prescaler);
     twbr::set(((F_CPU / freq) - 16) / (2 * prescaler));
   }
 
@@ -181,20 +181,18 @@ public:
   static uint8_t available() { return nb_recieved; }
 
 private:
-  static void startTransmission(uint8_t rw, uint8_t _addr, twi::_stop_t s) {
-    state |= twi::state::_master | rw | (s << 6);
+  static void startTransmission(uint8_t rw, uint8_t _addr, stop_t s) {
+    state |= _master | rw | (s << 6);
 
-    if (state & twi::state::_repeat_start) {
-      state &= ~twi::state::_repeat_start; // clear the repeat restart status
+    if (state & _repeat_start) {
+      state &= ~_repeat_start; // clear the repeat restart status
       if (addr == _addr) {
-        twdr::set(
-            (rw & twi::state::_write ? twi::sla::_write : twi::sla::_read) |
-            (_addr << 1));
+        twdr::set((rw & _write ? sla::_write : sla::_read) | (_addr << 1));
         ack();
       } else {
         addr = _addr;
-        stop(twi::_non_stop);
-        state |= twi::state::_master | rw | (s << 6);
+        stop(_non_stop);
+        state |= _master | rw | (s << 6);
       }
     } else {
       addr = _addr;
@@ -203,22 +201,22 @@ private:
   }
 
 protected:
-  static uint8_t _receiveFrom(uint8_t _addr, uint8_t size, twi::_stop_t s) {
+  static uint8_t receiveFrom(uint8_t _addr, uint8_t size, stop_t s) {
     // wait nothing else is going on at the same time
     waitReady();
     nb_recieved = 0;
     nb_to_recieve = size - 1;
 
-    startTransmission(twi::state::_read, _addr, s);
+    startTransmission(_read, _addr, s);
     waitReady();
     return nb_recieved;
   }
 
-  static void _sendTo(uint8_t _addr, twi::_stop_t s) {
+  static void sendTo(uint8_t _addr, stop_t s) {
     // wait nothing else is going on at the same time
     waitReady();
     nb_send = send_buffer.used();
-    startTransmission(twi::state::_write, _addr, s);
+    startTransmission(_write, _addr, s);
   }
 
 private:
@@ -245,47 +243,44 @@ private:
   static inline void waitReady() {
     do {
       _delay_ms(1);
-    } while ((state & 0x7F) != twi::state::_ready);
+    } while ((state & 0x7F) != _ready);
   }
 
   static void ack(bool full = true) {
     if (full)
-      twcr::sbits<0, twi::mask::_comm_ack>(twi::action::_ack);
+      twcr::sbits<0, _comm_ack>(_ack);
     else
-      twcr::sbits<0, twi::mask::_comm_ack_slave>(twi::action::_ack);
+      twcr::sbits<0, _comm_ack_slave>(_ack);
   }
 
   static void nack(bool full = true) {
     if (full)
-      twcr::sbits<0, twi::mask::_comm_ack>(twi::action::_nack);
+      twcr::sbits<0, _comm_ack>(_nack);
     else
-      twcr::sbits<0, twi::mask::_comm_ack_slave>(twi::action::_nack);
+      twcr::sbits<0, _comm_ack_slave>(_nack);
   }
 
-  static void clearInt() {
-    twcr::sbits<0, twi::mask::_comm>(twi::action::_clear_int);
-  }
+  static void clearInt() { twcr::sbits<0, _comm>(_clear_int); }
 
-  static void stop(twi::_stop_t stop = twi::_stop) {
+  static void stop(stop_t stop = _stop) {
     if (stop) { // stop
-      twcr::sbits<0, twi::mask::_comm>(twi::action::_stop);
+      twcr::sbits<0, _comm>(_stop_condition);
     } else { // stop followed by start
-      twcr::sbits<0, twi::mask::_comm>(twi::action::_stop |
-                                       twi::action::_start);
+      twcr::sbits<0, _comm>(_stop_condition | _start_condition);
     }
 
-    twi::twsto::wait_is_clear();
-    state = twi::state::_ready;
+    twsto::wait_is_clear();
+    state = _ready;
   }
 
   static void repeatStart() {
-    twcr::sbits<0, mask::_comm>(twi::action::_start); // TWINT + TWSTA + ~TWIE
-    state = twi::state::_repeat_start;
+    twcr::sbits<0, _comm>(_start_condition); // TWINT + TWSTA + ~TWIE
+    state = _repeat_start;
   }
 
-  static void start() { twcr::sbits<0, mask::_comm>(action::_start); }
+  static void start() { twcr::sbits<0, _comm>(_start_condition); }
 
-  static status::_status_t status() { return status::_status_t(tws::get()); }
+  static status_t status() { return status_t(tws::get()); }
 
 public:
   static inline void TWI_vect();
@@ -304,11 +299,11 @@ private:
 
 template <typename _sda, typename _scl>
 Queue<uint8_t, uint8_t, TWI_RECEIVE_BUFFER_SIZE>
-    TWIInterface<_sda, _scl, _hw_twi>::receive_buffer;
+TWIInterface<_sda, _scl,  _hw_twi>::receive_buffer;
 
 template <typename _sda, typename _scl>
 Queue<uint8_t, uint8_t, TWI_SEND_BUFFER_SIZE>
-    TWIInterface<_sda, _scl, _hw_twi>::send_buffer;
+TWIInterface<_sda, _scl, _hw_twi>::send_buffer;
 
 template <typename _sda, typename _scl>
 uint8_t TWIInterface<_sda, _scl, _hw_twi>::addr;
@@ -332,11 +327,10 @@ uint8_t TWIInterface<_sda, _scl, _hw_twi>::nb_recieved;
 /* -------------------------------------------------------------------------- */
 template <typename _sda, typename _scl>
 void TWIInterface<_sda, _scl, _hw_twi>::TWI_vect() {
-  using namespace status;
   switch (status()) {
   case _start:
   case _rep_start: {
-    if (state & state::_write)
+    if (state & _write)
       sla(sla::_write);
     else
       sla(sla::_read);
@@ -345,15 +339,15 @@ void TWIInterface<_sda, _scl, _hw_twi>::TWI_vect() {
     break;
   }
   /* -- Master transmit ------------------------------------------------- */
-  case _mt_sla_ack:   // slave acked address
-  case _mt_data_ack: {// slave acked data
+  case _mt_sla_ack:    // slave acked address
+  case _mt_data_ack: { // slave acked data
     // if still data to send, send the next byte
     if (nb_send) {
       send_stored();
       clearInt();
     } else {
       // else stop or repeat start
-      if (state & state::_send_stop)
+      if (state & _send_stop)
         stop(_stop);
       else
         repeatStart();
@@ -385,22 +379,22 @@ void TWIInterface<_sda, _scl, _hw_twi>::TWI_vect() {
     break;
   case _mr_data_nack:
     store_received();
-    if (state & state::_send_stop)
+    if (state & _send_stop)
       stop();
     else
       repeatStart();
     break;
   case _sr_gcall_ack:
   case _sr_arb_lost_gcall_ack:
-    state |= state::_gcall;
+    state |= _gcall;
   case _sr_sla_ack:
   case _sr_arb_lost_sla_ack:
-    state |= state::_slave | state::_read;
+    state |= _slave | _read;
     ack();
     break;
   case _sr_data_ack:
   case _sr_gcall_data_ack:
-    if(receive_buffer.isFull()) {
+    if (receive_buffer.isFull()) {
       nack(false);
     } else {
       store_received();
@@ -416,21 +410,23 @@ void TWIInterface<_sda, _scl, _hw_twi>::TWI_vect() {
     ack();
 
     callbackRead();
-    state = state::_ready;
+    state = _ready;
     break;
   case _st_sla_ack:
   case _st_arb_lost_sla_ack:
-    state |= state::_slave | state::_write;
+    state |= _slave | _write;
     callbackWrite();
   case _st_data_ack:
     send_stored();
-    if (nb_send) ack(false);
-    else nack(false);
+    if (nb_send)
+      ack(false);
+    else
+      nack(false);
     break;
   case _st_data_nack:
   case _st_last_data:
     ack();
-    state = state::_ready;
+    state = _ready;
     break;
   case _no_info:
     break;

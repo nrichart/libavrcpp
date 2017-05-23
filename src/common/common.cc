@@ -17,7 +17,6 @@
    along with libavrc++.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "common/common.hh"
 
 void init() {
@@ -25,34 +24,37 @@ void init() {
   // work there
   sei();
 
-  // timers 1 and 2 are used for phase-correct hardware pwm
-  // this is better for motors as it ensures an even waveform
-  // note, however, that fast pwm mode can achieve a frequency of up
-  // 8 MHz (with a 16 MHz clock) at 50% duty cycle
-
+// timers 1 and 2 are used for phase-correct hardware pwm
+// this is better for motors as it ensures an even waveform
+// note, however, that fast pwm mode can achieve a frequency of up
+// 8 MHz (with a 16 MHz clock) at 50% duty cycle
+#if defined(TCCR0A)
   // set timer 0 prescale factor to 64
   Timer0::setPrescaler(_timer_t0_clk_64);
   // configure timer 0 for phase correct pwm (8-bit)
-  Timer0::setWaveform (_timer_t0_pwm_phase_corret_ff);
+  Timer0::setWaveform(_timer_t0_pwm_phase_corret_ff);
+#endif
 
+#if defined(TCCR1A)
   // set timer 1 prescale factor to 64
   Timer1::setPrescaler(_timer_t0_clk_64);
   // put timer 1 in 8-bit phase correct pwm mode
-  Timer1::setWaveform (_timer_t1_pwm_phase_corret_ff_8);
+  Timer1::setWaveform(_timer_t1_pwm_phase_corret_ff_8);
+#endif
 
 #if defined(TCCR2A) && !defined(__AVR_ATmega32U4__)
   // set timer 2 prescale factor to 64
   Timer2::setPrescaler(_timer_t2_clk_64);
   // configure timer 2 for phase correct pwm (8-bit)
-  Timer2::setWaveform (_timer_t0_pwm_phase_corret_ff);
+  Timer2::setWaveform(_timer_t0_pwm_phase_corret_ff);
 #endif
 
-  // the bootloader connects pins 0 and 1 to the USART; disconnect them
-  // here so they can be used as normal digital i/o; they will be
-  // reconnected in Serial.begin()
+// the bootloader connects pins 0 and 1 to the USART; disconnect them
+// here so they can be used as normal digital i/o; they will be
+// reconnected in Serial.begin()
 #if defined(UCSRB)
-  //UCSRB = 0;
+// UCSRB = 0;
 #elif defined(UCSR0B)
-  //UCSR0B = 0;
+// UCSR0B = 0;
 #endif
 }
